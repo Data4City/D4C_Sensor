@@ -10,4 +10,4 @@ fi
 sudo systemctl enable docker
 sudo systemctl start docker
 
-docker build --tag=sensorbox
+docker build -t sensorbox .
