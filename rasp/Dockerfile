@@ -6,8 +6,6 @@ RUN apt-get -q update && \
         python3 python3-pip \
         python-dev python-pip gcc make  
 
-RUN pip3 install -r requirements.txt
-
 COPY requirements.txt /tmp/
 RUN pip3 install -r /tmp/requirements.txt
 COPY . /tmp/
