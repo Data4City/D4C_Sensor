@@ -8,15 +8,12 @@ RUN apt-get -q update && \
 
 RUN pip3 install -r requirements.txt
 
+COPY requirements.txt /tmp/
+RUN pip3 install -r /tmp/requirements.txt
+COPY . /tmp/
 
-COPY . /app
-WORKDIR /app
-
-RUN pip3 install  -r requirements.txt
 
 EXPOSE 80
-
-ENV NAME World
 
 # Run app.py when the container launches
 CMD ["python3", "light.py"]
