@@ -1,1 +1,1 @@
-docker run -p 4000:80 sensorBox
+docker run -p 4000:80 sensorbox
