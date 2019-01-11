@@ -1,1 +1,1 @@
-docker run -p 4000:80 sensorbox
+docker run --privileged 4000:80 sensorbox

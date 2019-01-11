@@ -13,5 +13,4 @@ COPY . /tmp/
 
 EXPOSE 80
 
-# Run app.py when the container launches
-CMD ["python3", "light.py"]
+CMD ["python3","-u", "/tmp/light.py"]
