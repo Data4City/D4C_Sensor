@@ -1,0 +1,20 @@
+{
+    "sensors" :
+    [
+        {
+            "name": "High Dynamic Range Digital Light",
+            "model": "TSL2591",
+            "module": "adafruit_tsl2591",
+            "constructor": "TSL2591",
+            "type": "i2c",
+            "data" : 
+            [
+                {
+                    "unit": "lux",
+                    "function":  "lux",
+                    "once": false
+                }
+            ]
+        }
+    ]
+}
