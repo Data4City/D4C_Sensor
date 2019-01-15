@@ -23,7 +23,7 @@ class PluggedSensor():
             currLambda = getattr(self.__sensor__, unit["function"])
             current = {
                 'lambda': currLambda,
-                'data': SensorData(once = unit["once"], last_value=currLambda()),
+                'data': SensorData(once = unit["once"],unit = unit["unit"], last_value=currLambda()),
             }
         return functions
 
@@ -33,13 +33,13 @@ class PluggedSensor():
             if data.once:
                 continue
             elif (data.last_checked - datetime.now).total_seconds() >= data.check_every:
-                curr_data.update(sensor_data["lambda"]())
+                sensor_data.update(sensor_data["lambda"]())
 
 class SensorData():
-    def __init__(self, once = False, unit, last_value):
+    def __init__(self, unit, last_value, once = False):
         self.last_checked =  datetime.now()
-        self.once =  data["once"]
-        self.uploaded_to_server = false
+        self.once =  once
+        self.uploaded_to_server = False
         self.last_value = last_value
         self.units  = unit #SI unit that measures the value given
     

@@ -7,13 +7,14 @@
             "module": "adafruit_tsl2591",
             "constructor": "TSL2591",
             "type": "i2c",
-            "timeout": 300,
             "data" : 
             [
                 {
+                    "check_every": 300,
                     "unit": "lux",
                     "function":  "lux",
                     "once": false
+                    
                 }
             ]
         }

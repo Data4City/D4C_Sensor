@@ -1,12 +1,13 @@
 import argparse, json, logging
-from .Helpers import plugged_sensor
+from Helpers import plugged_sensor
+
 currentSensors = []
 
 def initialize_sensors(sensorList):
     for sensor in sensorList:
             global currentSensors
             if(sensor["type"] == "i2c"):
-                currentSensors.append(PluggedSensor(sensor))
+                currentSensors.append(plugged_sensor.PluggedSensor(sensor))
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
