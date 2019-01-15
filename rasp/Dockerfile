@@ -14,4 +14,4 @@ COPY . /tmp/
 
 EXPOSE 80
 
-CMD ["python3","-u", "/tmp/light.py"]
+CMD ["python3","-u", "/tmp/main.py"]
