@@ -1,13 +1,12 @@
 import argparse, json, logging
 from Helpers import plugged_sensor
-
 currentSensors = []
 
 def initialize_sensors(sensorList):
-    for sensor in sensorList:
+    for sensor in sensorList["sensors"]:
             global currentSensors
             if(sensor["type"] == "i2c"):
-                currentSensors.append(plugged_sensor.PluggedSensor(sensor))
+                currentSensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
@@ -21,8 +20,12 @@ if __name__ == "__main__":
 
 
     parser = argparse.ArgumentParser(description="Choose parameters to be used with the sensor box")
-    parser.add_argument("sensors", metavar='j', help="Choose json file with the description of the available sensors")
-    parser.add_argument("debug", metavar='d', help="Choose to use dummy data")
+    parser.add_argument("--sensors", metavar='-j', help="Choose json file with the description of the available sensors", default = "sensorList.json")
+    parser.add_argument("--debug", metavar='-d', help="Choose to use dummy data", default=False, required= False)
     args = parser.parse_args()
-    sensor_list = json.loads(args.sensors["sensors"])
-    initialize_sensors(sensor_list)
+    try:
+        with open(args.sensors) as f: 
+            sensor_list = json.load(f)
+            initialize_sensors(sensor_list)
+    except FileNotFoundError:
+        logger.error("File doesn't exist")

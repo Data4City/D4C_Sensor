@@ -1,9 +1,10 @@
-import importlib, logging
+import importlib, logging, busio, board
 from datetime import datetime
 
 
 class PluggedSensor():
-    def __init__(self, sensor, i2c):
+    def __init__(self, sensor):
+        i2c = busio.I2C(board.SCL, board.SDA)
         try:
             importlib.import_module(sensor["module"])
             constructor = getattr(sensor["module"], sensor["constructor"])
