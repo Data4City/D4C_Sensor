@@ -1,13 +1,12 @@
-import importlib, logging, busio, board
+import importlib, logging
 from datetime import datetime
 
 
 class PluggedSensor():
-    def __init__(self, sensor):
-        i2c = busio.I2C(board.SCL, board.SDA)
+    def __init__(self, sensor,i2c):
         try:
-            importlib.import_module(sensor["module"])
-            constructor = getattr(sensor["module"], sensor["constructor"])
+            module = importlib.import_module(sensor["module"])
+            constructor = getattr(module, sensor["constructor"])
             self.__sensor__ = constructor(i2c)
         except ImportError:
             logger = logging.getLogger(__name__)
@@ -21,11 +20,14 @@ class PluggedSensor():
     def get_sensor_lambdas(self, data):
         functions = []
         for unit in data:
-            currLambda = getattr(self.__sensor__, unit["function"])
-            current = {
+            currLambda = lambda: getattr(self.__sensor__, unit["function"])
+            functions.append(
+                {
                 'lambda': currLambda,
-                'data': SensorData(once = unit["once"],unit = unit["unit"], last_value=currLambda()),
-            }
+                'data': SensorData(once = unit["once"],
+                unit = unit["unit"], 
+                last_value=currLambda()),
+            })
         return functions
 
     def update_sensors(self):
@@ -50,4 +52,4 @@ class SensorData():
 
     
     def __str__(self):
-        return ""
+        return "{} {} last updated at: {}".format(self.last_value, self.units, self.last_checked)

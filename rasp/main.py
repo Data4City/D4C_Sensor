@@ -1,12 +1,14 @@
-import argparse, json, logging
+import argparse, json, logging, busio, board
 from Helpers import plugged_sensor
 currentSensors = []
 
 def initialize_sensors(sensorList):
+    i2c = busio.I2C(board.SCL, board.SDA)
+
     for sensor in sensorList["sensors"]:
             global currentSensors
             if(sensor["type"] == "i2c"):
-                currentSensors.append(plugged_sensor.PluggedSensor(sensor))
+                currentSensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
@@ -27,5 +29,12 @@ if __name__ == "__main__":
         with open(args.sensors) as f: 
             sensor_list = json.load(f)
             initialize_sensors(sensor_list)
+            
+
+            # TODO delete this and create async CRON job that'll update sensors
+            for i in currentSensors:
+                for sensor_data in i.sensor_data:
+                    print(sensor_data["data"])
+        
     except FileNotFoundError:
         logger.error("File doesn't exist")
