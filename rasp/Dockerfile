@@ -4,6 +4,9 @@ ENTRYPOINT []
 RUN apt-get -q update && \
 	apt-get -qy install \
         	i2c-tools \
+                libatlas-base-dev \
+                libasound-dev \
+                libportaudio  \
         python3 python3-pip \
         python-dev python-pip gcc make  
 
