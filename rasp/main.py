@@ -6,7 +6,7 @@ def initialize_sensors(sensorList):
     for sensor in sensorList["sensors"]:
             global currentSensors
             if(sensor["type"] == "i2c"):
-                currentSensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
+                currentSensors.append(plugged_sensor.PluggedSensor(sensor))
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
