@@ -5,3 +5,6 @@ adafruit-circuitpython-tsl2591
 adafruit-circuitpython-mpl3115A2
 sounddevice
 numpy
+requests>=2.7.0
+redis >= 3.0.0
+rq
