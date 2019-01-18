@@ -1,14 +1,29 @@
 import argparse, json, logging, busio, board
+import requests_handler
+
 from Helpers import plugged_sensor
-currentSensors = []
+
+
+current_plugged_sensors = []
 
 def initialize_sensors(sensorList):
     i2c = busio.I2C(board.SCL, board.SDA)
 
     for sensor in sensorList["sensors"]:
-            global currentSensors
+            global current_plugged_sensors
             if(sensor["type"] == "i2c"):
-                currentSensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
+                current_plugged_sensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
+
+def sense():
+    for sensor in current_plugged_sensors:
+              if sensor.update_sensors:
+                  for data in sensor.data:
+                      if not data.enqueued:
+                          postData = sensor.__post_data__()
+                          postData["data"] = data.__post_data()
+                          requests_handler.post_sensor(postData)
+                          data.enqueued = True
+
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
@@ -23,18 +38,14 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Choose parameters to be used with the sensor box")
     parser.add_argument("--sensors", metavar='-j', help="Choose json file with the description of the available sensors", default = "sensorList.json")
-    parser.add_argument("--debug", metavar='-d', help="Choose to use dummy data", default=False, required= False)
+    parser.add_argument("--debug", metavar='-d', help="Choose to use dummy data", default=False)
     args = parser.parse_args()
+
     try:
         with open(args.sensors) as f: 
             sensor_list = json.load(f)
             initialize_sensors(sensor_list)
-            
-
-            # TODO delete this and create async CRON job that'll update sensors
-            for i in currentSensors:
-                for sensor_data in i.sensor_data:
-                    print(sensor_data["data"])
-        
+            from Helpers import redis_helper
+            redis_helper.scheduler.cron("*/5 * * * *", func=sense, repeat=None,queue_name="update_sensor")
     except FileNotFoundError:
-        logger.error("File doesn't exist")
+        logger.error("File sensor settings file ({}) doesn't exist".format(args.sensors))
