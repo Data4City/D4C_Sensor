@@ -46,10 +46,10 @@ if __name__ == "__main__":
             sensor_list = json.load(f)
             initialize_sensors(sensor_list)
             from Helpers import redis_helper as rh
-            from Helpers import flask_helper
+            frmo Helpers import flask_helper
+            flask_helper.app.run()
             rh.scheduler.cron("*/5 * * * *", func=sense, repeat=None,queue_name="update_sensor")
 
-            flask_helper.app.run()
     except FileNotFoundError:
         print("wat")
         logger.error("File sensor settings file ({}) doesn't exist".format(args.sensors))
