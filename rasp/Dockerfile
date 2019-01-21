@@ -25,4 +25,4 @@ CMD ["redis-server", "--protected-mode no"]
 
 EXPOSE 80
 
-CMD ["python3","-u", "/tmp/main.py"]
+CMD ["python3","-u", "/data/main.py"]
