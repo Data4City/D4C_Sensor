@@ -21,8 +21,7 @@ RUN apt-get -q update && \
                 libatlas-base-dev \
                 libasound-dev \
                 libportaudio  \
-        python3 python3-pip \
-        python-dev python-pip gcc make  
+        python3 python3-pip
 
 COPY requirements.txt /data/
 RUN pip3 install -r /data/requirements.txt
