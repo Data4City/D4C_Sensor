@@ -1,8 +1,6 @@
 import argparse, json, logging, busio, board
-import requests_handler
 
-from Helpers import plugged_sensor
-
+from Helpers import plugged_sensor, requests_handler
 
 current_plugged_sensors = []
 
@@ -47,7 +45,7 @@ if __name__ == "__main__":
         with open(args.sensors) as f: 
             sensor_list = json.load(f)
             initialize_sensors(sensor_list)
-            from Helpers import redis_helper
+            from Helpers import redis_helper,
             redis_helper.scheduler.cron("*/5 * * * *", func=sense, repeat=None,queue_name="update_sensor")
     except FileNotFoundError:
         logger.error("File sensor settings file ({}) doesn't exist".format(args.sensors))
