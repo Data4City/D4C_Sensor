@@ -1,10 +1,4 @@
 import argparse, json, logging, busio, board
-<<<<<<< HEAD
-
-from Helpers import plugged_sensor, requests_handler
-=======
->>>>>>> 196c850a7789fb476f9cac38d945d95d0efb56dc
-
 from Helpers import plugged_sensor, requests_handler
 
 current_plugged_sensors = []
