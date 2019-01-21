@@ -37,7 +37,7 @@ class PluggedSensor():
         for sensor_data in self.sensor_data:
             data = sensor_data["data"]
             
-            (data.last_checked - datetime.now).total_seconds() >= data.check_every:
+            if (data.last_checked - datetime.now).total_seconds() >= data.check_every:
                 #Check if the difference is big enough to merit a change
                 delta = abs(data.last_value * 0.05)
                 current = sensor_data.function()

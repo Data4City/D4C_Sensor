@@ -1,7 +1,6 @@
 import argparse, json, logging, busio, board
-import requests_handler
 
-from Helpers import plugged_sensor
+from Helpers import plugged_sensor, requests_handler
 
 
 current_plugged_sensors = []
@@ -15,6 +14,7 @@ def initialize_sensors(sensorList):
                 current_plugged_sensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
 
 def sense():
+    print("sensing")
     for sensor in current_plugged_sensors:
               if sensor.update_sensors:
                 if sensor.type == "i2c":
@@ -47,7 +47,13 @@ if __name__ == "__main__":
         with open(args.sensors) as f: 
             sensor_list = json.load(f)
             initialize_sensors(sensor_list)
-            from Helpers import redis_helper
-            redis_helper.scheduler.cron("*/5 * * * *", func=sense, repeat=None,queue_name="update_sensor")
+            from Helpers import redis_helper as rh
+            from Helpers import flask_helper
+            rh.scheduler.cron("*/5 * * * *", func=sense, repeat=None,queue_name="update_sensor")
+
+            flask_helper.app.run()
     except FileNotFoundError:
+        print("wat")
         logger.error("File sensor settings file ({}) doesn't exist".format(args.sensors))
+    except Exception as e:
+        print(e)
