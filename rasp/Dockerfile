@@ -15,12 +15,12 @@ EXPOSE 6379
 CMD ["redis-server", "--protected-mode no"]
 
 
-RUN apt-get -q update && \
-	apt-get -qy install \
+RUN apt-get update && \
+	apt-get -y install \
         	i2c-tools \
                 libatlas-base-dev \
                 libasound-dev \
-                libportaudio  \
+                libportaudio-dev  \
         python3 python3-pip
 
 COPY requirements.txt /data/
