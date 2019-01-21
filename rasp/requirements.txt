@@ -1,10 +1,9 @@
 RPi.GPIO==0.6.5
-requests==2.21.0
+requests>=2.7.0
 adafruit-blinka
 adafruit-circuitpython-tsl2591
 adafruit-circuitpython-mpl3115A2
 sounddevice
 numpy
-requests>=2.7.0
 redis >= 3.0.0
 rq
