@@ -17,12 +17,14 @@ def initialize_sensors(sensorList):
 def sense():
     for sensor in current_plugged_sensors:
               if sensor.update_sensors:
-                  for data in sensor.data:
+                if sensor.type == "i2c":
+                  for i,data in enumerate(sensor.data):
                       if not data.enqueued:
-                          postData = sensor.__post_data__()
-                          postData["data"] = data.__post_data()
-                          requests_handler.post_sensor(postData)
+                          requests_handler.post_sensor(data.__post_data(i))
                           data.enqueued = True
+                elif sensor.type == "mic":
+                    print("Microphone check")
+
 
 
 if __name__ == "__main__":

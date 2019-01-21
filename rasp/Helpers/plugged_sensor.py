@@ -11,7 +11,8 @@ class PluggedSensor():
         except ImportError:
             logger = logging.getLogger(__name__)
             logger.error("Could not load {}".format(sensor["imports"]))
-
+        
+        self.type = "i2c"
         self.name = sensor["name"]
         self.model = sensor["model"]
         self.sensor_data = self.construct_sensor_data(sensor["data"]) #List containing Sensor Data objects
@@ -45,8 +46,14 @@ class PluggedSensor():
                     result = True
         
         return result
-    def __post_data__(self) -> dict:
-        return {"name": self.name , "model": self.model}
+
+    def __post_data__(self, sensor_idx: int = None) -> dict:
+        if not sensor_idx: 
+            return {"name": self.name , "model": self.model}
+        else: 
+            return {"name": self.name , "model": self.model, "data": self.sensor_data[sensor_idx]}
+
+
 class SensorData():
     def __init__(self, unit, last_value, data_lambda,  once = False):
         self.timestamp =  datetime.now()
