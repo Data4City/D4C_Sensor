@@ -46,8 +46,8 @@ if __name__ == "__main__":
             sensor_list = json.load(f)
             initialize_sensors(sensor_list)
             from Helpers import redis_helper as rh
-            frmo Helpers import flask_helper
-            flaskhelper.start()
+            from Helpers.FlaskHelpers import flask_helper
+            flask_helper.start()
             rh.scheduler.cron("*/5 * * * *", func=sense, repeat=None,queue_name="update_sensor")
 
     except FileNotFoundError:

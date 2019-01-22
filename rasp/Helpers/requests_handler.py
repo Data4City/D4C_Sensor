@@ -1,7 +1,7 @@
 import requests
 from Helpers import plugged_sensor
-from FlaskHelpers import flask_helper as fh
 from Helpers import redis_helper as rh
+
 from rq.decorators import job
 
 @job('post', connection=rh.redis_server, timeout=5)
