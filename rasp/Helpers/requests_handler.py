@@ -1,6 +1,6 @@
 import requests
 from Helpers import plugged_sensor
-from FlaskHelpers import flask_helper as fh
+from Helpers import flask_helper as fh
 from Helpers import redis_helper as rh
 from rq.decorators import job
 
