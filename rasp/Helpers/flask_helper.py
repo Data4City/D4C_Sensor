@@ -8,11 +8,16 @@ __is_running__ = False
 
 def start():
     if not __is_running__:
-        socketio.run(app, host='0.0.0.0')
+        app.run(host='0.0.0.0')
+        __is_running__ == True
 
 @app.route("/")
 def hello():
-        return render_template('Helpers/FlaskHelpers/index.html')
+        return render_template('index.html')
 
 def publish_message(channel, data = {}):
         socketio.emit(channel, data)
+
+
+if __name__ == "__main__":
+        start()
