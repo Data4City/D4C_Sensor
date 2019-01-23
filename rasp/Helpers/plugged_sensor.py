@@ -18,36 +18,34 @@ class PluggedSensor():
         self.sensor_data = self.construct_sensor_data(sensor["data"]) #List containing Sensor Data objects
 
     
-    def construct_sensor_data(self, data):
+    def construct_sensor_data(self, sensor_data):
         data = []
-        for unit in data:
+        for unit in sensor_data:
+            print(unit)
             currLambda = lambda: getattr(self.__sensor__, unit["function"])
-            data.append( 
-                SensorData(
-                unit = unit["unit"], 
-                last_value=currLambda(), 
-                data_lambda = currLambda),
-                once = unit["once"],
-            )
+            sensor = SensorData(unit["unit"],currLambda(), currLambda,unit["once"])            
+            data.append( sensor)
         return data
 
     def update_sensors(self) -> bool:
         """Tries to update the sensors and if it's successful it returns a boolean if any sensor gets updated"""
         result = False
-        for sensor_data in self.sensor_data:
-            data = sensor_data["data"]
-            
-            if (data.last_checked - datetime.now).total_seconds() >= data.check_every:
+        for data in self.sensor_data:            
+            if (data.timestamp - datetime.now()).total_seconds() >= data.check_every:
                 #Check if the difference is big enough to merit a change
                 delta = abs(data.last_value * 0.05)
-                current = sensor_data.function()
+                current = data.function()
                 if data.last_value + delta > current or data.last_value  - delta < current:
-                    sensor_data.update()
+                    data.update()
                     result = True
         
         return result
 
+    def __str__(self):
+        return "{} {} {} \n{} ".format(self.name, self.type, self.model, ' '.join(str(sensor) for sensor in self.sensor_data))
+    
     def __post_data__(self, sensor_idx: int = None) -> dict:
+        print("woooot")
         if not sensor_idx: 
             return {"name": self.name , "model": self.model}
         else: 
@@ -55,13 +53,14 @@ class PluggedSensor():
 
 
 class SensorData():
-    def __init__(self, unit, last_value, data_lambda,  once = False):
+    def __init__(self, unit, last_value, data_lambda,  once = False, check_every = 30):
         self.timestamp =  datetime.now()
         self.once =  once
-        self.last_value = last_value
+        self.last_value = 5
         self.units  = unit #SI unit that measures the value given
         self.function = data_lambda
         self.enqueued = False
+        self.check_every = check_every
 
     def update(self):
         #Update and add to queue if still not in server
@@ -71,7 +70,7 @@ class SensorData():
             self.enqueued = False
     
     def __str__(self):
-        return "{} {} last updated at: {}".format(self.last_value, self.units, self.last_checked)
+        return "{} {} last updated at: {}\n".format(self.last_value, self.units, self.timestamp)
     
-    def __post_data(self):
+    def __post_data__(self):
         return {"timestamp": self.timestamp, "value": self.last_value}

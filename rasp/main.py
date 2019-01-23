@@ -1,8 +1,7 @@
-import argparse, json, logging, busio, board
+import argparse, json, logging, busio, board, asyncio
 from Helpers import plugged_sensor, requests_handler
-
+from Helpers import redis_helper as rh
 current_plugged_sensors = []
-
 def initialize_sensors(sensorList):
     i2c = busio.I2C(board.SCL, board.SDA)
 
@@ -11,17 +10,19 @@ def initialize_sensors(sensorList):
             if(sensor["type"] == "i2c"):
                 current_plugged_sensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
 
-def sense():
-    print("sensing")
-    for sensor in current_plugged_sensors:
-              if sensor.update_sensors:
+async def sense():
+    while True:
+        print("sensing")
+        for sensor in current_plugged_sensors:
+            if sensor.update_sensors():
                 if sensor.type == "i2c":
-                  for i,data in enumerate(sensor.data):
-                      if not data.enqueued:
-                          requests_handler.post_sensor(data.__post_data(i))
-                          data.enqueued = True
+                    for i,data in enumerate(sensor.sensor_data):
+                        if not data.enqueued:
+                            requests_handler.post_sensor.delay(sensor.__post_data__(i))
+                            data.enqueued = True
                 elif sensor.type == "mic":
                     print("Microphone check")
+        await asyncio.sleep(5)
 
 
 
@@ -45,10 +46,16 @@ if __name__ == "__main__":
         with open(args.sensors) as f: 
             sensor_list = json.load(f)
             initialize_sensors(sensor_list)
-            from Helpers import redis_helper as rh
+
+
+            asyncio.ensure_future(sense())
+            # asyncio.ensure_future(rh.process_workers())
+            
+            asyncio.get_event_loop().run_forever()
+
+
             from Helpers import flask_helper
             flask_helper.start()
-            rh.scheduler.cron("*/5 * * * *", func=sense, repeat=None,queue_name="update_sensor")
 
     except FileNotFoundError:
         print("wat")
