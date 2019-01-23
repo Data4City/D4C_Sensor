@@ -9,6 +9,6 @@ from rq.decorators import job
 def post_sensor(data: dict, socket_emit: bool = False):
     #TODO Change path
     print(data)
-    requests.post("http://localhost:8888", data)
+    #requests.post("http://localhost:8888", data)
     if socket_emit:
         fh.publish_message("update", data)

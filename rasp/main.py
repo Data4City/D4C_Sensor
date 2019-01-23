@@ -1,4 +1,5 @@
 import argparse, json, logging, busio, board, asyncio
+from threading import Thread
 from Helpers import plugged_sensor, requests_handler
 from Helpers import redis_helper as rh
 current_plugged_sensors = []
@@ -9,6 +10,11 @@ def initialize_sensors(sensorList):
             global current_plugged_sensors
             if(sensor["type"] == "i2c"):
                 current_plugged_sensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
+
+def start_loop(loop, function):
+    asyncio.set_event_loop(loop)
+    asyncio.ensure_future(function)
+    loop.run_forever()
 
 async def sense():
     while True:
@@ -48,14 +54,21 @@ if __name__ == "__main__":
             initialize_sensors(sensor_list)
 
 
-            asyncio.ensure_future(sense())
-            # asyncio.ensure_future(rh.process_workers())
+            sensor_loop = asyncio.new_event_loop()
+            st = Thread(target=sensor_loop, args=(sensor_loop, sense()))
+            st.start()
             
-            asyncio.get_event_loop().run_forever()
+
+            # worker_loop = asyncio.new_event_loop()
+            # wt = Thread(target=worker_loop, args=(worker_loop, rh.process_workers()))
+            # wt.start()
+
 
 
             from Helpers import flask_helper
             flask_helper.start()
+
+
 
     except FileNotFoundError:
         print("wat")
