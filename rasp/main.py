@@ -12,17 +12,17 @@ def initialize_sensors(sensorList):
 
 async def sense():
     while True:
-        print("sensing")
         for sensor in current_plugged_sensors:
             if sensor.update_sensors():
                 if sensor.type == "i2c":
                     for i,data in enumerate(sensor.sensor_data):
+                        print(data)
                         if not data.enqueued:
                             requests_handler.post_sensor.delay(sensor.__post_data__(i))
                             data.enqueued = True
                 elif sensor.type == "mic":
                     print("Microphone check")
-        await asyncio.sleep(5)
+        await asyncio.sleep(10)
 
 
 

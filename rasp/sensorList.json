@@ -10,10 +10,11 @@
             "data" : 
             [
                 {
-                    "check_every": 300,
+                    "check_every": 10,
                     "unit": "lux",
                     "function":  "lux",
-                    "once": false
+                    "once": false,
+                    "threshold": 0.05
                     
                 }
             ]
