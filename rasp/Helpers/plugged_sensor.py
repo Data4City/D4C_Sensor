@@ -34,7 +34,11 @@ class PluggedSensor():
                 #Check if the difference is big enough to merit a change
                 delta = abs(data.last_value * data.threshold)
                 current = round(data.function(),2)
-                if data.last_value + delta > current or data.last_value  - delta < current:
+                
+                
+                # print("{} < {}  or  {} < {}".format(current , data.last_value  -  delta ,data.last_value  + delta, current))
+
+                if  current < data.last_value  -  delta or data.last_value  + delta < current:
                     data.update()
                     result = True
         
