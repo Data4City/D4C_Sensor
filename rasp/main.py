@@ -11,10 +11,12 @@ def initialize_sensors(sensorList):
             if(sensor["type"] == "i2c"):
                 current_plugged_sensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
 
-def start_loop(loop, function):
-    asyncio.set_event_loop(loop)
-    asyncio.ensure_future(function)
-    loop.run_forever()
+def start_sense_loop():
+    sensor_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(sensor_loop)
+    asyncio.ensure_future(sense())
+    sensor_loop.run_forever()
+
 
 async def sense():
     while True:
@@ -45,7 +47,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Choose parameters to be used with the sensor box")
     parser.add_argument("--sensors", metavar='-j', help="Choose json file with the description of the available sensors", default = "sensorList.json")
-    parser.add_argument("--debug", metavar='-d', help="Choose to use dummy data", default=False)
+    parser.add_argument("--flask", metavar='-f', help="Run flask in background?", default=True)
     args = parser.parse_args()
 
     try:
@@ -53,20 +55,17 @@ if __name__ == "__main__":
             sensor_list = json.load(f)
             initialize_sensors(sensor_list)
 
-
-            sensor_loop = asyncio.new_event_loop()
-            st = Thread(target=sensor_loop, args=(sensor_loop, sense()))
-            st.start()
-            
-
-            # worker_loop = asyncio.new_event_loop()
-            # wt = Thread(target=worker_loop, args=(worker_loop, rh.process_workers()))
-            # wt.start()
+            sense_thread = Thread(target=start_sense_loop)
+            sense_thread.start()
 
 
+            if(args.flask):
+                from Helpers import flask_helper
+                flask_thread = Thread(target = flask_helper.start)
+                flask_thread.start()
 
-            from Helpers import flask_helper
-            flask_helper.start()
+
+            rh.process_workers()
 
 
 

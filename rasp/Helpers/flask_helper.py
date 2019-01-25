@@ -8,7 +8,7 @@ __is_running__ = False
 
 def start():
     if not __is_running__:
-        app.run(host='0.0.0.0')
+        app.run(host='0.0.0.0', use_reloader = False, debug=False)
         __is_running__ == True
 
 @app.route("/")
