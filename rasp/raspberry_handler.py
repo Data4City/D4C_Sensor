@@ -51,9 +51,6 @@ async def sense():
         await asyncio.sleep(10)
 
 
-
-
-
 def init_rasp(sensor_list):
     get_serial(__serial_num)
     initialize_sensors(sensor_list)

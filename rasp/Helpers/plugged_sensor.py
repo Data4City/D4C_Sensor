@@ -45,11 +45,11 @@ class PluggedSensor():
     def __str__(self) -> str:
         return "{} {} {} \n{} ".format(self.name, self.type, self.model, ' '.join(str(sensor) for sensor in self.sensor_data))
     
-    def __post_data__(self, user: str = "ERROR00000000", sensor_idx =  "None") -> dict:
+    def __post_data__(self, sensor_idx =  "None") -> dict:
         if type(sensor_idx) == str: 
-            return { "rasp_id": user, "name": self.name , "model": self.model}
+            return {"name": self.name , "model": self.model}
         else: 
-            return {"rasp_id": user, "name": self.name ,"model": self.model, "data": self.sensor_data[sensor_idx].__post_data__()}
+            return { "name": self.name ,"model": self.model, "data": self.sensor_data[sensor_idx].__post_data__()}
 
 
 class SensorData():
