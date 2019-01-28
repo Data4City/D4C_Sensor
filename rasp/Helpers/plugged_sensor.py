@@ -4,20 +4,20 @@ from datetime import datetime
 
 class PluggedSensor():
     def __init__(self, sensor,i2c):
+        logger = logging.getLogger(__name__)
+        
         try:
             module = importlib.import_module(sensor["module"])
             constructor = getattr(module, sensor["constructor"])
             self.__sensor__ = constructor(i2c)
+    
+            self.type = "i2c"
+            self.name = sensor["name"]
+            self.model = sensor["model"]
+            self.sensor_data = self.construct_sensor_data(sensor["data"]) #List containing Sensor Data objects
         except ImportError:
-            logger = logging.getLogger(__name__)
             logger.error("Could not load {}".format(sensor["imports"]))
-        
-        self.serial_num = serial
-        self.type = "i2c"
-        self.name = sensor["name"]
-        self.model = sensor["model"]
-        self.sensor_data = self.construct_sensor_data(sensor["data"]) #List containing Sensor Data objects
-
+    
     
     def construct_sensor_data(self, sensor_data):
         data = []
@@ -45,11 +45,11 @@ class PluggedSensor():
     def __str__(self) -> str:
         return "{} {} {} \n{} ".format(self.name, self.type, self.model, ' '.join(str(sensor) for sensor in self.sensor_data))
     
-    def __post_data__(self, user: str = "ERROR00000000", sensor_idx: int = None) -> dict:
-        if sensor_idx is None and sensor_idx == 0: 
+    def __post_data__(self, user: str = "ERROR00000000", sensor_idx =  "None") -> dict:
+        if type(sensor_idx) == str: 
             return { "rasp_id": user, "name": self.name , "model": self.model}
         else: 
-            return {"rasp_id": user, "name": self.name , "model": self.model, "data": self.sensor_data[sensor_idx].__post_data__()}
+            return {"rasp_id": user, "name": self.name ,"model": self.model, "data": self.sensor_data[sensor_idx].__post_data__()}
 
 
 class SensorData():

@@ -7,7 +7,8 @@ if __name__ == "__main__":
     logger.setLevel(logging.INFO)
 
     handler = logging.FileHandler('sensor.log')
-    handler.setLevel(logging.ERROR)
+    logging.getLogger().setLevel(logging.INFO)
+
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
@@ -18,7 +19,6 @@ if __name__ == "__main__":
     parser.add_argument("--flask", metavar='-f', help="Run flask in background?", default=True)
     parser.add_argument("--worker", metavar='-w', help="Run the queu worker?", default=True)
     args = parser.parse_args()
-
     try:
         with open(args.sensors) as f: 
             sensor_list = json.load(f)
@@ -33,8 +33,8 @@ if __name__ == "__main__":
             if(args.worker):
                 from Helpers import redis_helper
                 redis_helper.process_workers()
-                
+            
+          #  f.close()
     except FileNotFoundError:
+        print("wat")
         logger.error("File sensor settings file ({}) doesn't exist".format(args.sensors))
-    except Exception as e:
-        logger.error("Exception {} at main function".format(type(e)))

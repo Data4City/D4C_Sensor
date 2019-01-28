@@ -20,7 +20,7 @@
         },
 
 
-        {the
+        {
             "name": "Barometric Pressure/Altitude/Temperature Sensor",
             "model": "MPL3115A2",
             "module": "adafruit_mpl3115a2",
@@ -39,13 +39,6 @@
                     "check_every": 0,
                     "unit": "pascals",
                     "function":  "pressure",
-                    "threshold": 0.05
-                    
-                },
-                {
-                    "check_every": 0,
-                    "unit": "lux",
-                    "function":  "lux",
                     "threshold": 0.05
                     
                 }

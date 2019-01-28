@@ -1,25 +1,23 @@
-import busio, board, asyncio
+import busio, board, asyncio, logging
 from Helpers import plugged_sensor, requests_handler
 from threading import Thread
 
 __current_plugged_sensors = []
-__serial_num = None
+__serial_num = "0000000000000000"
 
-def get_serial():
+def get_serial(serial = __serial_num):
   # Extract serial from cpuinfo file
-    if not __serial_num or __serial_num == "ERROR000000000":
-        __serial_num = "0000000000000000"
+    if serial == "0000000000000000" or serial == "ERROR000000000":
         try:
-            f = open('/proc/cpuinfo','r')
+            with open('/proc/cpuinfo','r') as f:
                 for line in f:
                     if line[0:6]=='Serial':
-                        __serial_num = line[10:26]
-                f.close()
+                        serial = line[10:26]
         except:
             logger = logging.getLogger(__name__)
             logger.error("Serial number not found")
-            __serial_num = "ERROR000000000"
-        return __serial_num
+            serial = "ERROR000000000"
+    return serial
 
   
 def initialize_sensors(sensorList):
@@ -27,7 +25,11 @@ def initialize_sensors(sensorList):
     for sensor in sensorList["sensors"]:
             global __current_plugged_sensors
             if(sensor["type"] == "i2c"):
-                __current_plugged_sensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
+                try:
+                    __current_plugged_sensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
+                except RuntimeError:
+                    logger = logging.getLogger(__name__)
+                    logger.error("{} sensor not found, ignoring".format(sensor["model"]))
 
 def start_sense_loop():
     sensor_loop = asyncio.new_event_loop()
@@ -53,9 +55,7 @@ async def sense():
 
 
 def init_rasp(sensor_list):
+    get_serial(__serial_num)
     initialize_sensors(sensor_list)
     sense_thread = Thread(target=start_sense_loop)
     sense_thread.start()
-
-
-
