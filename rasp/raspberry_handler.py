@@ -22,13 +22,14 @@ def get_serial(serial = __serial_num):
   
 def initialize_sensors(sensorList):
     i2c = busio.I2C(board.SCL, board.SDA)
+    logger = logging.getLogger(__name__)
     for sensor in sensorList["sensors"]:
             global __current_plugged_sensors
             if(sensor["type"] == "i2c"):
                 try:
                     __current_plugged_sensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
+                    logger.info("{} sensor initialized".format(sensor["model"]))
                 except RuntimeError:
-                    logger = logging.getLogger(__name__)
                     logger.error("{} sensor not found, ignoring".format(sensor["model"]))
 
 def start_sense_loop():

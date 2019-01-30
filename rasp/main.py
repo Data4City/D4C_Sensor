@@ -19,6 +19,8 @@ if __name__ == "__main__":
     parser.add_argument("--flask", metavar='-f', help="Run flask in background?", default=True)
     parser.add_argument("--worker", metavar='-w', help="Run the queu worker?", default=True)
     args = parser.parse_args()
+    
+    
     try:
         with open(args.sensors) as f: 
             sensor_list = json.load(f)
@@ -34,7 +36,5 @@ if __name__ == "__main__":
                 from Helpers import redis_helper
                 redis_helper.process_workers()
             
-          #  f.close()
     except FileNotFoundError:
-        print("wat")
         logger.error("File sensor settings file ({}) doesn't exist".format(args.sensors))
