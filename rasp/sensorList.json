@@ -43,6 +43,13 @@
                     
                 }
             ]
+        },
+
+        {
+            "name": "Microphone",
+            "type": "mic",
+            "min_clip_size": 5,
+            "max_clip_size": 15
         }
     ]
 }

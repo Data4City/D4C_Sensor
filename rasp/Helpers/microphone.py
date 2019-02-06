@@ -32,6 +32,7 @@ class MicrophoneSensor():
         return np.mean((cumsum[N:] - cumsum[:-N]) / float(N))
 
     def get_label(self, audio_queue):
+        #TODO Add label creator 
         return "ay lemao wat"
         
     def process_signal(self, audio_queue):            
