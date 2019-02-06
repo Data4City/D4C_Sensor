@@ -6,7 +6,7 @@ from datetime import datetime
 #from Helpers import requests_handler as rh
 class MicrophoneSensor():
 
-    def __init__(self, sensor = []):
+    def __init__(self, sensor = {}):
         sd.default.samplerate = 44100
         self.mean = 0.
         self.samples = np.empty(0)
