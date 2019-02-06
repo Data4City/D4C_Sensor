@@ -30,7 +30,7 @@ def initialize_sensors(sensorList):
                     __current_plugged_sensors.append(plugged_sensor.PluggedSensor(sensor, i2c))
                     logger.info("{} sensor initialized".format(sensor["model"]))
                 if(sensor["type"] == "mic"):
-                    mic = microphone.MicrophoneSensor()
+                    mic = microphone.MicrophoneSensor(sensor)
                     __threads["microphone"] = Thread(target=mic.start_sensing)
             except RuntimeError:
                 logger.error("{} sensor not found, ignoring".format(sensor["model"]))

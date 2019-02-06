@@ -6,7 +6,7 @@ from datetime import datetime
 #from Helpers import requests_handler as rh
 class MicrophoneSensor():
 
-    def __init__(self):
+    def __init__(self, sensor = []):
         sd.default.samplerate = 44100
         self.mean = 0.
         self.samples = np.empty(0)
@@ -14,7 +14,9 @@ class MicrophoneSensor():
         self.record_start = None
         self.record_queue = queue.Queue()
         self.last_loud_noise = None
-
+        self.max_time_between_noises = sensor.get("max_time_between_noises", 3) 
+        self.max_clip_size = sensor.get("max_clip_size", 4) 
+        self.min_clip_size = sensor.get("min_clip_size", 3) 
 
     def start_sensing(self, window: int = 1500):
         loop = asyncio.get_event_loop()
@@ -56,13 +58,14 @@ class MicrophoneSensor():
         if self.mean != 0:
             if(not self.recording and self.is_loud(volume_norm)):
                 print("Started recording")            
-                self.recording = True        #
+                self.recording = True
                 self.record_start = t.time()
 
             if(self.recording):
                 self.record_queue.put(indata.copy())
-                if(self.time_passed() > 5 or self.time_passed() > 15 ): #Make sure the clip is at least 5 seconds long
-                    if(self.time_passed(start = self.last_loud_noise) > 3):
+                if(self.time_passed() > self.min_clip_size ): #Make sure the clip is at least n seconds long
+                    if(self.time_passed(start = self.last_loud_noise) > self.max_time_between_noises 
+                    or self.time_passed  self.max_clip_size):
                         print("Stopped recording")
                         self.process_signal(queue)
                         self.recording = False
