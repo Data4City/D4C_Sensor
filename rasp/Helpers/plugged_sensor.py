@@ -47,9 +47,9 @@ class PluggedSensor():
     
     def __post_data__(self, sensor_idx =  "None") -> dict:
         if type(sensor_idx) == str: 
-            return {"name": self.name , "model": self.model}
+            return {"name": self.name , "model": self.model, "type": "i2c"}
         else: 
-            return { "name": self.name ,"model": self.model, "data": self.sensor_data[sensor_idx].__post_data__()}
+            return { "name": self.name ,"model": self.model, "type": "i2c", "data": self.sensor_data[sensor_idx].__post_data__()}
 
 
 class SensorData():
