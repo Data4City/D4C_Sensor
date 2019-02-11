@@ -1,1 +1,1 @@
-from Resources.boxResource import BoxResource
+from Resources.kitResource import KitResource
