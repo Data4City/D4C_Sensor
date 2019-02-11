@@ -4,8 +4,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-class Box(Base):
-    __tablename__ = "box"
+class Kit(Base):
+    __tablename__ = "kit"
     #TODO Add geolocation
     id = Column('id', Integer, primary_key=True)
     serial = Column('serial', String(16))
@@ -17,7 +17,7 @@ class Sensor(Base):
     id = Column('id', Integer, primary_key=True)
     name = Column("name",String(40))
     model = Column("model", String(40))
-    box_id = Column(Integer, ForeignKey('box.id'))
+    kit_id = Column(Integer, ForeignKey('kit.id'))
     measurements = relationship('Measurement')
 
 class Measurement(Base):    
@@ -32,7 +32,7 @@ class Value(Base):
     id = Column('id', Integer, primary_key=True)
     data  = Column("data", Float)
     timestamp = Column("timestamp", DateTime(timezone=True))
-    belongs_to = Column(Integer, ForeignKey('box.id'), nullable= False)
+    belongs_to = Column(Integer, ForeignKey('kitm.id'), nullable= False)
     measurement = Column(Integer, ForeignKey('measurement.id'), nullable= False)
     
 if __name__ == "__main__":
