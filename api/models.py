@@ -52,7 +52,7 @@ class Sensor(Base):
     def save(self, session):
         with session.begin():
             session.add(self)
-            session.commit()
+           # session.commit()
 
 class Measurement(Base):    
     __tablename__ = "measurement"
@@ -73,7 +73,7 @@ class Measurement(Base):
     def save(self, session):
         with session.begin():
             session.add(self)
-            session.commit()
+            #session.commit()
 
 class Value(Base):
     __tablename__ = "value"
@@ -96,7 +96,7 @@ class Value(Base):
     def save(self, session):
         with session.begin():
             session.add(self)
-            session.commit()
+            #session.commit()
 
 if __name__ == "__main__":
     engine = create_engine("sqlite:///sensor.db", echo=True)
