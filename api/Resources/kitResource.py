@@ -1,17 +1,31 @@
 import falcon
-from models import Kit
+from models import Kit, Value
 from custom_helpers import validate
 
 
 class KitResource(object):
+    @validate
     def on_get(self, req, resp):
-        """Handles GET requests"""
-        resp.status = falcon.HTTP_200  # This is the default status
-        b = Kit(serial= 10132)
-        self.session.add(b)
-        self.session.commit()
-        resp.body = "naisu"
+        try:
+            body = kwargs.get("parsed")
+            serial = body['serial']
+            kit = self.session.query(Kit).get(serial)
+            value_list = kit.get_n_from_kit(self.session, serial, body.get("amount",0)] )
+            response = {'kit': kit.as_dict(), 'values': [value.as_dict() for value in value_list]}
+            resp.status = falcon.HTTP_201
+            resp.body = response
+
+        except Exception:
+            resp.status = falcon.HTTP_400
+            resp.body = {'error': "Bad Request"}
+
 
     @validate
     def on_post(self, req, resp, **kwargs):
-        resp.body ="WAt"
+        try:
+            body = kwargs.get("parsed")
+            b = Kit(body['serial'])
+            b.save(self.session)
+        except Exception:
+            resp.status = falcon.HTTP_400
+            resp.body = {'error': "Bad Request"}
