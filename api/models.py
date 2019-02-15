@@ -10,18 +10,21 @@ class Kit(Base):
     #TODO Add geolocation
     id = Column('id', Integer, primary_key=True)
     serial = Column('serial', String(16))
-    created_at = Column("timestamp", DateTime(timezone=True), default=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    created_at = Column("timestamp", DateTime(timezone=True), default=datetime.now())
     sensors_used = relationship('Sensor')
     measurement_data = relationship('Value')
+    
     def __init__(self, serial):
         self.serial = serial
     
 
     @property
     def as_dict(self):
+        print("wadup u nigger")
         return {
             'serial': self.serial,
-            'data': self.data,
+            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'sensors_used': [s.as_dict for s in self.sensors_used]
         }
 
 
@@ -38,8 +41,8 @@ class Kit(Base):
             return return_value
         
     def save(self, session):
-        with session.begin():
-            session.add(self)
+        session.add(self)
+        session.commit()
 
 class Sensor(Base):
     __tablename__ = "sensor"
@@ -50,9 +53,8 @@ class Sensor(Base):
     measurements = relationship('Measurement')
 
     def save(self, session):
-        with session.begin():
-            session.add(self)
-           # session.commit()
+        session.add(self)
+        session.commit()
 
 class Measurement(Base):    
     __tablename__ = "measurement"
@@ -71,9 +73,8 @@ class Measurement(Base):
         }
 
     def save(self, session):
-        with session.begin():
-            session.add(self)
-            #session.commit()
+        session.add(self)
+        session.commit()
 
 class Value(Base):
     __tablename__ = "value"
@@ -92,11 +93,9 @@ class Value(Base):
             'symbol': self.measurement.symbol
         }
 
-
     def save(self, session):
-        with session.begin():
-            session.add(self)
-            #session.commit()
+        session.add(self)
+        session.commit()
 
 if __name__ == "__main__":
     engine = create_engine("sqlite:///sensor.db", echo=True)
