@@ -104,7 +104,9 @@ class Value(Base):
         session.add(self)
         session.commit()
 
-if __name__ == "__main__":
+def __reset_db__():
     engine = create_engine("sqlite:///sensor.db", echo=True)
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+if __name__ == "__main__":
+    __reset_db__

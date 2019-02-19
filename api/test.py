@@ -1,7 +1,9 @@
-import unittest
+from sqlalchemy import create_engine 
+from sqlalchemy.ext.declarative import declarative_base
 from falcon import testing
 from routes import get_app
-
+from datetime import datetime
+import unittest, models
 
 
 class MyTestCase(testing.TestCase):
@@ -9,33 +11,20 @@ class MyTestCase(testing.TestCase):
         super(MyTestCase, self).setUp()
         self.app = get_app()
 
-
 class TestKitResource(MyTestCase):
     def test_create_kit(self):
         create_body = {'serial': "E00R000050600000"}
-        assert_dict = {'serial': "E00R000050600000",
-         'created_at': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-         'sensors_used': []
-         }
+        assert_dict = {'serial': "E00R000050600000", 'id': 1,'sensors_used': []}
         result = self.simulate_post('/kit', json = create_body)
-        self.assertEqual(assert_dict, result.json)
+        result_jay= result.json
+
+        result_jay.pop('created_at')
+        self.assertEqual(assert_dict, result_jay)
 
         # Post again to test if it doesnt' create a second one .
-        result = self.simulate_post('/kit')
-        self.assertEqual({"error": "Box already exists"}, result.json)
-
-
-
-#Ignoring datetime 
-import datetime
-constant_now = datetime.datetime(2009,8,7,6,5,4)
-old_datetime_class = datetime.datetime
-class new_datetime(datetime.datetime):
-    @staticmethod
-    def now():
-        return constant_now
-
-datetime.datetime = new_datetime
+        result = self.simulate_post('/kit', json = create_body)
+        self.assertEqual({'error': "Box already exists"}, result.json)
 
 if __name__ == '__main__':
+    models.__reset_db__()
     unittest.main()
