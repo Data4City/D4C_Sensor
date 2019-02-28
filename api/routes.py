@@ -14,5 +14,6 @@ Session = scoped_session(session_factory)
 
 def get_app() -> API:
     _app = falcon.API(middleware=[SQLAlchemySessionManager(Session)])
-    _app.add_route('/kit', KitResource())
+    _app.add_route('/v1/kit', KitResource())
+    _app.add_route('/v1/sensor', SensorResource())
     return _app
