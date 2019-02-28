@@ -2,16 +2,17 @@ import json
 import falcon
 import jsonschema
 
-def validate(func, schema = None):
+
+def validate(func, schema=None):
     def wrapper(self, req, resp, *args, **kwargs):
         try:
-            obj = kwargs.get('parsed',req.stream.read(req.content_length or 0) )
+            obj = kwargs.get('parsed', req.stream.read(req.content_length or 0))
         except Exception as e:
             raise falcon.HTTPBadRequest(
-                    'Failed data validation, no valid body',
-                    e.message
-                ) 
-        if(schema is not None and obj != ""):
+                'Failed data validation, no valid body',
+                e.message
+            )
+        if schema is not None and obj != "":
             try:
                 jsonschema.validate(obj, schema)
             except jsonschema.ValidationError as e:
@@ -20,7 +21,9 @@ def validate(func, schema = None):
                     e.message
                 )
         return func(self, req, resp, *args, **kwargs)
+
     return wrapper
+
 
 def get_json_body(func):
     def wrapper(self, req, resp, *args, **kwargs):
@@ -29,9 +32,10 @@ def get_json_body(func):
             if len(data) == 0:
                 obj = ""
             else:
-                    obj = json.loads(data.decode('utf-8'))
+                obj = json.loads(data.decode('utf-8'))
         except Exception:
             raise falcon.HTTPBadRequest(
-                'Invalid data','Could not properly parse the provided data as JSON')
+                'Invalid data', 'Could not properly parse the provided data as JSON')
         return func(self, req, resp, *args, parsed=obj, **kwargs)
+
     return wrapper
