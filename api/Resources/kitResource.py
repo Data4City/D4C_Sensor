@@ -10,21 +10,16 @@ class KitResource(object):
         try:
             body = kwargs.get("parsed")
             id = body.get("id")
-            kit = self.session.query(Kit).join(Kit.sensors_used).get(id)
-            print(kit)
-            print(kit)
-            print(kit.as_dict)
-            #if kit is not None:
-            #    print(type(kit))
-            #    value_list = kit.get_values_from_kit(self.session, body.get("amount",[]))
-            #    #print(value_list)            
-            #    response = {}#{'kit': kit.as_dict, 'values': [value.as_dict for value in value_list]}
-            #    resp.status = falcon.HTTP_201
-            #    resp.media = response
-            #else: 
-            #    resp.status = falcon.HTTP_404
-            #    resp.media = { 'error': "Box with id {} doesn't exit".format(id)}
-        except Exception:
+            kit = self.session.query(Kit).get(1)
+            if kit is not None:
+               value_list = kit.get_values_from_kit(self.session, body.get("amount",[]))
+               response = {}#{'kit': kit.as_dict, 'values': [value.as_dict for value in value_list]}
+               resp.status = falcon.HTTP_201
+               resp.media = response
+            else:
+               resp.status = falcon.HTTP_404
+               resp.media = { 'error': "Box with id {} doesn't exist".format(id)}
+        except Exception as e:
             resp.status = falcon.HTTP_400
             resp.body = {'error': "Bad Request"}
 

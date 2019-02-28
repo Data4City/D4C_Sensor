@@ -4,12 +4,14 @@ from custom_helpers import validate
 from sqlalchemy import exists
 
 class SensorResource(object):
-    
+
+
     @validate
-    def on_get(self, req, resp, **kwargs):
+    def on_put(self, req, resp, **kwargs):
         try:
             body = kwargs.get("parsed")
             serial = body['serial']
+
             kit = self.session.query(Kit).get(serial)
             value_list = kit.get_n_from_kit(self.session, serial, body.get("amount",0))
             resp.status = falcon.HTTP_201
