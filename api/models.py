@@ -1,8 +1,8 @@
-from sqlalchemy import create_engine, Table, Column, String, Integer, ForeignKey, DateTime, Float
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import joinedload
 from datetime import datetime
+
+from sqlalchemy import create_engine, Table, Column, String, Integer, ForeignKey, DateTime, Float
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, backref
 
 Base = declarative_base()
 
@@ -18,7 +18,7 @@ class Kit(Base):
     id = Column('id', Integer, primary_key=True)
     serial = Column('serial', String(16))
     created_at = Column("timestamp", DateTime(timezone=True), default=datetime.now())
-    sensors_used = relationship('Sensor', secondary=sensors_in_kit, backref='kits', lazy='dynamic')
+    sensors_used = relationship('Sensor', secondary=sensors_in_kit, backref=backref('kits', lazy='dynamic'))
 
     # measurement_data = relationship('Value', backref="kit")
 
@@ -34,21 +34,10 @@ class Kit(Base):
             'sensors_used': [s.as_dict for s in self.sensors_used]
         }
 
-    @classmethod
-    def get_values_from_kit(self, session, amount: int = 0):
-        return_value = {}
-        for sensor in self.sensors_used:
-            for measurement in sensor.measurements:
-                if amount <= 0:
-                    return_value[sensor.name] = session.query(Value).filter(Value.measurement == measurement.id).all()
-                else:
-                    return_value[sensor.name] = session.query(Value).filter(Value.measurement == measurement.id).limit(
-                        amount)
-        return return_value
-
     def save(self, session):
         session.add(self)
         session.commit()
+
 
 
 class Sensor(Base):
@@ -59,6 +48,7 @@ class Sensor(Base):
     #kit_id = Column(Integer, ForeignKey('kit.id'))
     measurements = relationship('Measurement')
 
+    @property
     def as_dict(self):
         return {
             'id': self.id,
@@ -66,14 +56,13 @@ class Sensor(Base):
             'model': self.model
         }
 
-    def add_kit(self, kit):
+    def add_kit(self, kit, session):
         self.kits.append(kit)
-        self.session.commit()
+        session.commit()
 
     def save(self, session):
         session.add(self)
         session.commit()
-
 
 class Measurement(Base):
     __tablename__ = "measurement"
@@ -90,8 +79,8 @@ class Measurement(Base):
         }
 
     def save(self, session):
-        session.add(self)
-        session.commit()
+       session.add(self)
+       session.commit()
 
 
 class Value(Base):
@@ -113,6 +102,7 @@ class Value(Base):
     def save(self, session):
         session.add(self)
         session.commit()
+
 
 
 def __reset_db__():

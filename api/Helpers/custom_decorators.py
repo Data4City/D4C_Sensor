@@ -30,7 +30,7 @@ def get_json_body(func):
         try:
             data = req.stream.read(req.content_length or 0)
             if len(data) == 0:
-                obj = ""
+                obj = {}
             else:
                 obj = json.loads(data.decode('utf-8'))
         except Exception:
@@ -39,3 +39,11 @@ def get_json_body(func):
         return func(self, req, resp, *args, parsed=obj, **kwargs)
 
     return wrapper
+
+def commit_database(func):
+    def wrapper(self, req, resp, *args, **kwargs):
+        result = func(self, req, resp, *args, **kwargs)
+        self.session.commit()
+        return result
+    return wrapper
+

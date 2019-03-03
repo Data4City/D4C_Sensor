@@ -1,7 +1,9 @@
 import falcon
+
+from Helpers.custom_decorators import validate, get_json_body
+from Helpers.helper_functions import get_or_create
 from models import Kit, Sensor
-from custom_helpers import validate, get_json_body, get_or_create
-from sqlalchemy import exists
+
 
 class SensorResource(object):
 
@@ -27,11 +29,11 @@ class SensorResource(object):
     def on_post(self, req, resp, **kwargs):
         try:
             body = kwargs.get("parsed")
-            sensor = get_or_create(self.session, Sensor, name= body["name"], symbol=body["symbol"])
+            sensor = get_or_create(self.session, Sensor, name= body["name"], model=body["model"])
             kit = get_or_create(self.session, Kit, id=body["kit_id"])
-            sensor.add_kit(kit)
+            sensor.add_kit(kit, self.session)
             resp.media = sensor.as_dict
-
+            resp.status = falcon.HTTP_201
         except Exception as e:
             resp.status = falcon.HTTP_400
             resp.body = {'error': "Bad Request"}
