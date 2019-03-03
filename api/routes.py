@@ -1,7 +1,7 @@
 import falcon
 from falcon import API
 from Resources import *
-from Middleware import SQLAlchemySessionManager
+from Helpers.middlewares import SQLAlchemySessionManager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
