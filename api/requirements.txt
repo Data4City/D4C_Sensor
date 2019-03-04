@@ -1,5 +1,0 @@
-falcon
-gunicorn
-sqlalchemy
-jsonschema
-freezegun
