@@ -2,7 +2,6 @@ import busio, board, asyncio, logging
 from Helpers import plugged_sensor, requests_handler, microphone
 from threading import Thread
 
-
 class Raspy:
     def __init__(self,serial, sensor_list):
         self.logger = logging.getLogger(__name__)
@@ -12,6 +11,7 @@ class Raspy:
         self.initialize_sensors(sensor_list)
         self.i2c = busio.I2C(board.SCL, board.SDA)
         self.initialize_sensors(sensor_list)
+
 
     def initialize_sensors(self, sensor_list):
         for sensor in sensor_list["sensors"]:
@@ -30,11 +30,7 @@ class Raspy:
         while True:
             for sensor in self.current_plugged_sensors:
                 if sensor.update_sensors():
-                    if sensor.type == "i2c":
-                        for i, data in enumerate(sensor.sensor_data):
-                            if not data.enqueued:
-                                requests_handler.post_sensor.delay(sensor.__post_data__(i))
-                                data.enqueued = True
+                    sensor.post_to_api()
             await asyncio.sleep(10)
 
     def create_thread(self, name, function):
