@@ -20,25 +20,29 @@ class MicrophoneSensor:
         self.max_time_between_noises = sensor.get("max_time_between_noises", 3)
         self.max_clip_size = sensor.get("max_clip_size", 4)
         self.min_clip_size = sensor.get("min_clip_size", 3)
-    #TODO Implement this
+
+    # TODO Implement this
     def post_to_api(self):
         pass
+
     def start_sensing(self, window: int = 1500):
         loop = asyncio.get_event_loop()
         with sd.InputStream(callback=self.callback):
-            while (True):
+            while True:
                 # sd.sleep(10)
-                if (len(self.samples) >= window):
+                if len(self.samples) >= window:
                     print("updating mean")
                     self.mean = loop.run_until_complete(self.running_mean(self.samples, window))
                     self.samples = np.empty(0)
             # asyncio.ensure_future(self.calculate_average(), vol_values)
 
-    async def running_mean(self, x, N) -> np.ndarray:
+    @staticmethod
+    async def running_mean(x, N) -> np.ndarray:
         cumsum = np.cumsum(np.insert(x, 0, 0))
         return np.mean((cumsum[N:] - cumsum[:-N]) / float(N))
 
-    def get_label(self, audio_queue):
+    @staticmethod
+    def get_label(audio_queue):
         # TODO Add label creator
         return "ay lemao wat"
 
