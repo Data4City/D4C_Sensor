@@ -1,6 +1,22 @@
 import argparse, json, logging
 from threading import Thread
-import raspberry_handler as rh
+from raspberry_handler import Raspy
+
+
+def get_serial(serial="0000000000000000"):
+    # Extract serial from cpuinfo file
+    if serial == "0000000000000000" or serial == "ERROR000000000":
+        try:
+            with open('/proc/cpuinfo', 'r') as f:
+                for line in f:
+                    if line[0:6] == 'Serial':
+                        serial = line[10:26]
+        except:
+            logger = logging.getLogger(__name__)
+            logger.error("Serial number not found")
+            serial = "ERROR000000000"
+    return serial
+
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
@@ -13,28 +29,29 @@ if __name__ == "__main__":
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-
     parser = argparse.ArgumentParser(description="Choose parameters to be used with the sensor box")
-    parser.add_argument("--sensors", metavar='-j', help="Choose json file with the description of the available sensors", default = "sensorList.json")
+    parser.add_argument("--sensors", metavar='-j',
+                        help="Choose json file with the description of the available sensors",
+                        default="sensorList.json")
     parser.add_argument("--flask", metavar='-f', help="Run flask in background?", default=True)
     parser.add_argument("--worker", metavar='-w', help="Run the queu worker?", default=True)
     args = parser.parse_args()
-    
-    
-    try:
-        with open(args.sensors) as f: 
-            sensor_list = json.load(f)
-            
-            rh.init_rasp(sensor_list)
 
-            if(args.flask):
+    try:
+        with open(args.sensors) as f:
+            sensor_list = json.load(f)
+            rasp = Raspy(get_serial(), sensor_list)
+
+            if args.flask:
                 from Helpers import flask_helper
-                flask_thread = Thread(target = flask_helper.start)
+
+                flask_thread = Thread(target=flask_helper.start)
                 flask_thread.start()
 
-            if(args.worker):
+            if args.worker:
                 from Helpers import redis_helper
+
                 redis_helper.process_workers()
-            
+
     except FileNotFoundError:
         logger.error("File sensor settings file ({}) doesn't exist".format(args.sensors))
