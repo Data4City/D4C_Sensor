@@ -25,17 +25,16 @@ class PluggedSensor:
 
     def construct_sensor_measurements(self, sensor_info):
         data = []
-        #TODO check dictionary
+        # TODO check dictionary
         sensor_data = sensor_info.get("data", [])
         sensor_api = sensor_info.get("api", [])
         measurements = sensor_api.get("measurements", [])
         for unit_sensor in sensor_data:
             curr_lambda = getattr(self.__sensor__, unit_sensor["function"])
-            find_occurence_in_list(measurements, lambda x: x.get("name",None) == unit_sensor["name"])
-            sensor = SensorMeasurement(unit_sensor, curr_lambda)
+            measurement_info = find_occurence_in_list(measurements, lambda x: x.get("name", None) == unit_sensor["name"])
+            sensor = SensorMeasurement(unit_sensor,curr_lambda, measurement_info["id"])
             data.append(sensor)
         return data
-
 
     def update_sensors(self) -> bool:
         """Tries to update the sensors and if it's successful it returns a boolean if any sensor gets updated"""
