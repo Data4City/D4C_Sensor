@@ -1,30 +1,41 @@
 import importlib, logging
 from datetime import datetime
+from observable import Observable
+
+from Helpers.general_helpers import find_occurence_in_list
+
+obs = Observable()
 
 
 class PluggedSensor:
-    def __init__(self, sensor, i2c):
+    def __init__(self, sensor_info, i2c):
         self.logger = logging.getLogger(__name__)
 
         try:
-            module = importlib.import_module(sensor["module"])
-            constructor = getattr(module, sensor["constructor"])
+            module = importlib.import_module(sensor_info["module"])
+            constructor = getattr(module, sensor_info["constructor"])
             self.__sensor__ = constructor(i2c)
-
+            self.api_id = sensor_info["id"]
             self.type = "i2c"
-            self.name = sensor["name"]
-            self.model = sensor["model"]
-            self.sensor_data = self.construct_sensor_data(sensor["data"])  # List containing Sensor Data objects
+            self.name = sensor_info["name"]
+            self.model = sensor_info["model"]
+            self.sensor_data = self.construct_sensor_measurements(sensor_info)  # List containing Sensor Data objects
         except ImportError:
-            self.logger.error("Could not load {}".format(sensor["imports"]))
+            self.logger.error("Could not load {}".format(sensor_info["imports"]))
 
-    def construct_sensor_data(self, sensor_data):
+    def construct_sensor_measurements(self, sensor_info):
         data = []
+        #TODO check dictionary
+        sensor_data = sensor_info.get("data", [])
+        sensor_api = sensor_info.get("api", [])
+        measurements = sensor_api.get("measurements", [])
         for unit_sensor in sensor_data:
             curr_lambda = getattr(self.__sensor__, unit_sensor["function"])
-            sensor = SensorData(unit_sensor, curr_lambda)
+            find_occurence_in_list(measurements, lambda x: x.get("name",None) == unit_sensor["name"])
+            sensor = SensorMeasurement(unit_sensor, curr_lambda)
             data.append(sensor)
         return data
+
 
     def update_sensors(self) -> bool:
         """Tries to update the sensors and if it's successful it returns a boolean if any sensor gets updated"""
@@ -42,11 +53,13 @@ class PluggedSensor:
         return result
 
     def post_to_api(self):
-        #TODO Implement this
+        # TODO Implement this
+        post_data = []
         for i, data in enumerate(self.sensor_data):
             if not data.enqueued:
-                requests_handler.post_sensor.delay(sensor.__post_data__(i))
+                post_data.append(str(data))
                 data.enqueued = True
+        obs.trigger("post_value_server", post_data)
 
     def __str__(self) -> str:
         return "{} {} {} \n{} ".format(self.name, self.type, self.model,
@@ -60,13 +73,14 @@ class PluggedSensor:
                     "data": self.sensor_data[int(sensor_idx)].__post_data__()}
 
 
-class SensorData:
-    def __init__(self, unit_sensor, data_lambda):
+class SensorMeasurement:
+    def __init__(self, unit_sensor, data_lambda, measurement_id):
         self.timestamp = datetime.now()
         self.check_only_once = True if unit_sensor["check_every"] == 0 else False
         self.check_every = unit_sensor["check_every"]
         self.threshold = unit_sensor["threshold"]
-        self.units = unit_sensor["unit"]  # SI unit that measures the value given
+        self.measurement_id = measurement_id
+        self.symbol = unit_sensor["symbol"]  # SI unit that measures the value given
         self.last_value = data_lambda()
         self.function = data_lambda
         self.enqueued = False
@@ -79,8 +93,8 @@ class SensorData:
             self.enqueued = False
 
     def __str__(self):
-        return "{} {} last updated at: {}\n".format(self.last_value, self.units, self.timestamp)
+        return "{} {} last updated at: {}\n".format(self.last_value, self.symbol, self.timestamp)
 
     def __post_data__(self):
         return {"timestamp": self.timestamp.strftime('%Y-%m-%d %H:%M:%S'), "value": self.last_value,
-                "units": self.units}
+                "measurement_id": self.measurement_id}

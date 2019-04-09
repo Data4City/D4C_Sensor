@@ -34,7 +34,7 @@ if __name__ == "__main__":
                         help="Choose json file with the description of the available sensors",
                         default="config.yaml")
     parser.add_argument("--flask", metavar='-f', help="Run flask in background?", default=True)
-    parser.add_argument("--worker", metavar='-w', help="Run the queu worker?", default=True)
+    parser.add_argument("--worker", metavar='-w', help="Run the queue worker?", default=True)
     args = parser.parse_args()
 
     try:
@@ -49,9 +49,8 @@ if __name__ == "__main__":
                 flask_thread.start()
 
             if args.worker:
-                from Helpers import redis_helper
-
-                redis_helper.process_workers()
+                from Helpers import rq_worker
+                rq_worker.process_workers(config["rq_worker"]["queues"])
 
     except FileNotFoundError:
         logger.error("File sensor settings file ({}) doesn't exist".format(args.sensors))

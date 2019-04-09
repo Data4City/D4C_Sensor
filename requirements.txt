@@ -10,3 +10,4 @@ rq
 rq-scheduler
 flask
 flask-socketio
+observable
