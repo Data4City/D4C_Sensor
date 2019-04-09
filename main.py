@@ -1,4 +1,4 @@
-import argparse, json, logging
+import argparse, yaml, logging
 from threading import Thread
 from raspberry_handler import Raspy
 
@@ -32,15 +32,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Choose parameters to be used with the sensor box")
     parser.add_argument("--sensors", metavar='-j',
                         help="Choose json file with the description of the available sensors",
-                        default="sensorList.json")
+                        default="config.yaml")
     parser.add_argument("--flask", metavar='-f', help="Run flask in background?", default=True)
     parser.add_argument("--worker", metavar='-w', help="Run the queu worker?", default=True)
     args = parser.parse_args()
 
     try:
         with open(args.sensors) as f:
-            sensor_list = json.load(f)
-            rasp = Raspy(get_serial(), sensor_list)
+            config = yaml.safe_load(f)
+            rasp = Raspy(get_serial(), config)
 
             if args.flask:
                 from Helpers import flask_helper
