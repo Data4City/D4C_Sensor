@@ -1,27 +1,35 @@
+import asyncio
+import logging
 from threading import Thread
 
-import asyncio
-import board
-import busio
-import logging
-
-from Helpers import plugged_sensor, microphone
-from Helpers.requests_handler import RequestHandler
-from Helpers.plugged_sensor import PluggedSensor
+from Helpers import microphone
 from Helpers.general_helpers import find_occurence_in_list
+from Helpers.plugged_sensor import PluggedSensor
+from Helpers.requests_handler import RequestHandler
 
 
 class Raspy:
-    def __init__(self, serial, config):
+    def __init__(self, serial, config=None):
         self.logger = logging.getLogger(__name__)
         self.current_plugged_sensors = []
         self.serial_num = serial
         self.threads = {}
+        self.requests_handler = None
+        self.i2c = None
 
-        self.requests_handler = RequestHandler(config["api"])
+        if config:
+            self.init_config(config)
 
-        self.i2c = busio.I2C(board.SCL, board.SDA)
-        self.initialize_sensors(config["sensors"])
+    def init_config(self, config):
+        try:
+            import board
+            import busio
+
+            self.requests_handler = RequestHandler(config["api"])
+            self.i2c = busio.I2C(board.SCL, board.SDA)
+            self.initialize_sensors(config["sensors"])
+        except Exception as e:
+            self.logger.error("Could not initialize config. Error {}".format(e))
 
     def initialize_sensors(self, sensor_list):
         kit = self.requests_handler.get_kit_id(self.serial_num)
@@ -39,7 +47,8 @@ class Raspy:
                 updated_measurements = []
 
                 for measurement in measurements_config:
-                    resp_measurement = find_occurence_in_list(measurements_api, lambda x: x.get("name", None) == measurement["name"])
+                    resp_measurement = find_occurence_in_list(measurements_api,
+                                                              lambda x: x.get("name", None) == measurement["name"])
 
                     if resp_measurement is None:
                         updated_measurements.append(self.requests_handler.get_measurement(measurement))
