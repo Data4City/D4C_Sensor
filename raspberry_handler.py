@@ -27,38 +27,44 @@ class Raspy:
 
             self.requests_handler = RequestHandler(config["api"])
             self.i2c = busio.I2C(board.SCL, board.SDA)
-            self.initialize_sensors(config["sensors"])
+            self.initialize_sensors(self.compare_sensors_with_api(config["sensors"]))
         except Exception as e:
             self.logger.error("Could not initialize config. Error {}".format(e))
 
-    def initialize_sensors(self, sensor_list):
-        kit = self.requests_handler.get_kit_id(self.serial_num)
-        sensors_used = kit["sensors_used"]
-        for sensor in sensor_list["sensors"]:
-            try:
-                sensor_api = find_occurence_in_list(sensors_used, lambda x: x.get("model", None) == sensor["model"])
-                if sensor_api is None:
-                    sensor["api"] = self.requests_handler.get_sensor(sensor)
+    def compare_sensors_with_api(self, sensor_list):
+        kit = self.requests_handler.get_kit(self.serial_num)
+        if 'error' in kit:
+            kit = self.requests_handler.post_kit(self.serial_num)
+        api_sensors_used = kit.get("sensors_used", [])
+        for sensor in sensor_list:
+            sensor_from_api = find_occurence_in_list(api_sensors_used, lambda x: x.get("model", None) == sensor["model"])
+            if not sensor_from_api:
+                api_sensor_create_response = self.requests_handler.post_sensor(sensor)
+                sensor["api_id"] = api_sensor_create_response["id"]
+            else:
+                sensor["api_id"] = sensor_from_api["id"]
+
+            measurements_api = sensor_from_api.get("measurements", [])
+            measurements_config = sensor.get("measurements", [])
+
+            for measurement in measurements_config:
+                resp_measurement = find_occurence_in_list(measurements_api, lambda x: x.get("name", None) == measurement["name"])
+
+                if not resp_measurement:
+                    api_response = self.requests_handler.post_measurement(measurement)
+                    measurement["api_id"] = api_response["id"]
                 else:
-                    sensor["api"] = sensor_api
+                    measurement["api_id"] = resp_measurement["id"]
 
-                measurements_api = sensor_api.get("measurements", [])
-                measurements_config = sensor.get("data", [])
-                updated_measurements = []
+            sensor["measurements"] = measurements_config
+        return sensor_list
 
-                for measurement in measurements_config:
-                    resp_measurement = find_occurence_in_list(measurements_api,
-                                                              lambda x: x.get("name", None) == measurement["name"])
-
-                    if resp_measurement is None:
-                        updated_measurements.append(self.requests_handler.get_measurement(measurement))
-                    else:
-                        updated_measurements.append(resp_measurement)
-
-                sensor["measurements"] = updated_measurements
+    def initialize_sensors(self, checked_sensor_list):
+        try:
+            for sensor in checked_sensor_list:
                 self.current_plugged_sensors.append(self.sensor_factory(sensor))
-            except RuntimeError:
-                self.logger.error("{} sensor not found, ignoring".format(sensor["model"]))
+        except RuntimeError:
+            self.logger.error("{} sensor not found, ignoring".format(sensor["model"]))
 
     def start_sense_loop(self):
         sensor_loop = asyncio.new_event_loop()

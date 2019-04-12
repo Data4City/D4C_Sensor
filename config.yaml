@@ -6,7 +6,7 @@ sensors:
           module: adafruit_tsl2591
           constructor: TSL2591
           type: i2c
-          data:
+          measurements:
           - check_every: 10
             name: Lux
             symbol: lx
@@ -17,7 +17,7 @@ sensors:
           module: adafruit_mpl3115a2
           constructor: MPL3115A2
           type: i2c
-          data:
+          measurements:
           - check_every: 10
             name: Celsius
             symbol: C

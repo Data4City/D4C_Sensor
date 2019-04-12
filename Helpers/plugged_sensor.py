@@ -26,7 +26,7 @@ class PluggedSensor:
     def construct_sensor_measurements(self, sensor_info):
         data = []
         # TODO check dictionary
-        sensor_data = sensor_info.get("data", [])
+        sensor_data = sensor_info.get("measurements", [])
         sensor_api = sensor_info.get("api", [])
         measurements = sensor_api.get("measurements", [])
         for unit_sensor in sensor_data:
@@ -69,7 +69,7 @@ class PluggedSensor:
             return {"name": self.name, "model": self.model, "type": "i2c"}
         else:
             return {"name": self.name, "model": self.model, "type": "i2c",
-                    "data": self.sensor_data[int(sensor_idx)].__post_data__()}
+                    "values": self.sensor_data[int(sensor_idx)].__post_data__()}
 
 
 class SensorMeasurement:

@@ -12,10 +12,16 @@ class RequestHandler:
         self.base_url = config["url"]
         self.kit_id = None
 
-    def get_kit_id(self, serial):
-        # TODO Post to server to get kit id
+    def post_kit(self, serial):
+        r = requests.post("{}/kit".format(self.base_url), json={"serial": serial}).json()
+        if "id" in r and not self.kit_id:
+            self.kit_id = r["id"]
+        return r
+
+    def get_kit(self, serial):
         r = requests.get("{}/kit".format(self.base_url), json={"serial": serial}).json()
-        self.kit_id = r["id"]
+        if "id" in r and not self.kit_id:
+            self.kit_id = r["id"]
         return r
 
     @job('post', connection=rh.redis_server, timeout=5)
@@ -27,13 +33,13 @@ class RequestHandler:
         #    fh.publish_message("update", data)
 
     @obs.on("post_value_to_server")
-    def handle_post(self, data):
+    def handle_post_value(self, data):
         self.post_value.delay(data)
 
-    def get_sensor(self, sensor_info):
+    def post_sensor(self, sensor_info):
         post_body = {"kit_id": self.kit_id, "name": sensor_info["name"], "model": sensor_info["model"]}
         return requests.post("{}/sensor".format(self.base_url), json=post_body).json()
 
-    def get_measurement(self, measurement_info):
-        #TODO implement this
-        pass
+    def post_measurement(self, sensor_id, measurement_info):
+        post_body = {"sensor_id": sensor_id, 'symbol': measurement_info['symbol'], 'name': measurement_info['name']}
+        return requests.post("{}/measurement".format(self.base_url), json=post_body).json()
