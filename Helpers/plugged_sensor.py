@@ -15,7 +15,7 @@ class PluggedSensor:
             module = importlib.import_module(sensor_info["module"])
             constructor = getattr(module, sensor_info["constructor"])
             self.__sensor__ = constructor(i2c)
-            self.api_id = sensor_info["id"]
+            self.api_id = sensor_info["api_id"]
             self.type = "i2c"
             self.name = sensor_info["name"]
             self.model = sensor_info["model"]
@@ -32,7 +32,7 @@ class PluggedSensor:
         for unit_sensor in sensor_data:
             curr_lambda = getattr(self.__sensor__, unit_sensor["function"])
             measurement_info = find_occurence_in_list(measurements, lambda x: x.get("name", None) == unit_sensor["name"])
-            sensor = SensorMeasurement(unit_sensor,curr_lambda, measurement_info["id"])
+            sensor = SensorMeasurement(unit_sensor,curr_lambda, measurement_info["api_id"])
             data.append(sensor)
         return data
 
@@ -78,8 +78,8 @@ class SensorMeasurement:
         self.check_only_once = True if unit_sensor["check_every"] == 0 else False
         self.check_every = unit_sensor["check_every"]
         self.threshold = unit_sensor["threshold"]
-        self.measurement_id = measurement_id
         self.symbol = unit_sensor["symbol"]  # SI unit that measures the value given
+        self.measurement_id = measurement_id
         self.last_value = data_lambda()
         self.function = data_lambda
         self.enqueued = False

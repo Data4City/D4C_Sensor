@@ -60,11 +60,13 @@ class Raspy:
         return sensor_list
 
     def initialize_sensors(self, checked_sensor_list):
+        model = ""
         try:
             for sensor in checked_sensor_list:
+                model = sensor.get("model", "No Model")
                 self.current_plugged_sensors.append(self.sensor_factory(sensor))
         except RuntimeError:
-            self.logger.error("{} sensor not found, ignoring".format(sensor["model"]))
+            self.logger.error("{} sensor not found, ignoring".format(model))
 
     def start_sense_loop(self):
         sensor_loop = asyncio.new_event_loop()
