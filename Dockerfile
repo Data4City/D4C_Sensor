@@ -1,3 +1,5 @@
+#!/bin/bash
+
 FROM balenalib/rpi-raspbian:latest
 ENTRYPOINT []
 
@@ -9,6 +11,7 @@ RUN rm -rf /var/lib/apt/lists/*
 
 
 COPY requirements.txt /data/
+RUN pip3 install wheel
 RUN pip3 install -r /data/requirements.txt
 COPY . /data/
 
