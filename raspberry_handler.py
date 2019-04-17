@@ -2,7 +2,6 @@ import asyncio
 import logging
 from threading import Thread
 
-from Helpers import microphone
 from Helpers.general_helpers import find_occurence_in_list
 from Helpers.plugged_sensor import PluggedSensor
 from Helpers.requests_handler import RequestHandler
@@ -96,6 +95,7 @@ class Raspy:
             self.logger.info("{} sensor initialized".format(sensor_info["model"]))
             return sensor
         if sensor_info["type"] == "mic":
-            mic = microphone.MicrophoneSensor(sensor_info)
+            from Helpers.microphone import MicrophoneSensor
+            mic = MicrophoneSensor(sensor_info)
             self.create_thread("microphone", mic.start_sensing)
             return mic
