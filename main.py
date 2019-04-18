@@ -45,6 +45,7 @@ if __name__ == "__main__":
             try:
 
                 config = yaml.safe_load(f)
+                print(config)
                 rasp = Raspy(get_serial(), config)
 
                 if args.flask:
