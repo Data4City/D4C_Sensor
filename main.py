@@ -41,20 +41,24 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        with open(args.sensors) as f:
-            config = yaml.safe_load(f)
-            rasp = Raspy(get_serial(), config)
+        with open(args.sensors, 'r') as f:
+            try:
 
-            if args.flask:
-                from Helpers import flask_helper
+                config = yaml.safe_load(f)
+                rasp = Raspy(get_serial(), config)
 
-                flask_thread = Thread(target=flask_helper.start)
-                flask_thread.start()
+                if args.flask:
+                    from Helpers import flask_helper
 
-            if args.worker:
-                from Helpers import rq_worker
+                    flask_thread = Thread(target=flask_helper.start)
+                    flask_thread.start()
 
-                rq_worker.process_workers(config["rq_worker"]["queues"])
+                if args.worker:
+                    from Helpers import rq_worker
+
+                    rq_worker.process_workers(config["rq_worker"]["queues"])
+            except yaml.YAMLError as exc:
+                logger.error(exc)
 
     except FileNotFoundError:
         logger.error("File sensor settings file ({}) doesn't exist".format(args.sensors))
