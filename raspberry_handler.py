@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from asyncio import coroutine
 from threading import Thread
 
 from Helpers.general_helpers import find_occurence_in_list
@@ -20,24 +21,24 @@ class Raspy:
             self.init_config(config)
 
     def init_config(self, config):
-        # try:
+        try:
             import board
             import busio
 
             self.requests_handler = RequestHandler(config["api"])
             self.i2c = busio.I2C(board.SCL, board.SDA)
             self.initialize_sensors(self.compare_sensors_with_api(config["sensors"]))
-        # except Exception as e:
-        #     self.logger.error("Could not initialize config. Error {}".format(e))
+        except Exception as e:
+            self.logger.error("Could not initialize config: {}".format(e))
 
     def compare_sensors_with_api(self, sensor_list):
-        print(sensor_list)
         kit = self.requests_handler.get_kit(self.serial_num)
         if 'error' in kit:
             kit = self.requests_handler.post_kit(self.serial_num)
         api_sensors_used = kit.get("sensors_used", [])
         for sensor in sensor_list:
-            sensor_from_api = find_occurence_in_list(api_sensors_used, lambda x: x.get("model", None) == sensor["model"])
+            sensor_from_api = find_occurence_in_list(api_sensors_used,
+                                                     lambda x: x.get("model", None) == sensor["model"])
             if not sensor_from_api:
                 api_sensor_create_response = self.requests_handler.post_sensor(sensor)
                 sensor["api_id"] = api_sensor_create_response["id"]
@@ -48,10 +49,11 @@ class Raspy:
             measurements_config = sensor.get("measurements", [])
 
             for measurement in measurements_config:
-                resp_measurement = find_occurence_in_list(measurements_api, lambda x: x.get("name", None) == measurement["name"])
+                resp_measurement = find_occurence_in_list(measurements_api,
+                                                          lambda x: x.get("name", None) == measurement["name"])
 
                 if not resp_measurement:
-                    api_response = self.requests_handler.post_measurement(measurement)
+                    api_response = self.requests_handler.post_measurement(sensor["api_id"], measurement)
                     measurement["api_id"] = api_response["id"]
                 else:
                     measurement["api_id"] = resp_measurement["id"]
@@ -60,33 +62,34 @@ class Raspy:
         return sensor_list
 
     def initialize_sensors(self, checked_sensor_list):
-        model = ""
-        try:
-            for sensor in checked_sensor_list:
-                model = sensor.get("model", "No Model")
-                self.current_plugged_sensors.append(self.sensor_factory(sensor))
-        except RuntimeError:
-            self.logger.error("{} sensor not found, ignoring".format(model))
+        name = ""
+        for sensor in checked_sensor_list:
+            try:
+                name = sensor.get("name", "No Model")
+                sensor_obj = self.sensor_factory(sensor)
+                self.current_plugged_sensors.append(sensor_obj)
+            except RuntimeError:
+                self.logger.error("{} sensor not found, ignoring".format(name))
 
-    def start_sense_loop(self):
-        sensor_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(sensor_loop)
-        asyncio.ensure_future(self.sense())
-        sensor_loop.run_forever()
+    def start_sense_loop(self, loop):
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self.sense())
 
-    async def sense(self):
+    @coroutine
+    def sense(self):
         while True:
+            logging.info("WAT")
             for sensor in self.current_plugged_sensors:
                 if sensor.update_sensors():
+                    self.logger.info("posting to api")
                     sensor.post_to_api()
-            await asyncio.sleep(10)
+            yield from asyncio.sleep(10)
 
-    def create_thread(self, name, function):
-        self.threads[name] = Thread(target=function)
+    def _create_thread(self, name, function):
+        self.threads[name] = Thread(name=name,target=function)
 
     def start_threads(self):
-        self.create_thread("sense", self.start_sense_loop)
-        # TODO check this
+        self._create_thread("sense", self.start_sense_loop(asyncio.get_event_loop()))
         for key, value in self.threads.items():
             value.start()
 
@@ -96,7 +99,11 @@ class Raspy:
             self.logger.info("{} sensor initialized".format(sensor_info["model"]))
             return sensor
         if sensor_info["type"] == "mic":
-            from Helpers.microphone import MicrophoneSensor
-            mic = MicrophoneSensor(sensor_info)
-            self.create_thread("microphone", mic.start_sensing)
-            return mic
+            try:
+                from Helpers.microphone import MicrophoneSensor
+
+                mic = MicrophoneSensor(sensor_info)
+                self._create_thread("microphone", mic.start_sensing)
+                return mic
+            except Exception:
+                raise RuntimeError

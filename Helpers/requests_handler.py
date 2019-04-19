@@ -9,15 +9,15 @@ obs = Observable()
 
 class RequestHandler:
     def __init__(self, config):
-        print(config)
         self.base_url = config["base_url"]
         self.kit_id = None
 
     def post_kit(self, serial):
-        r = requests.post("{}/kit".format(self.base_url), json={"serial": serial}).json()
-        if "id" in r and not self.kit_id:
-            self.kit_id = r["id"]
-        return r
+        r = requests.post("{}/kit".format(self.base_url), json={"serial": serial})
+        resp = r.json()
+        if "id" in resp and not self.kit_id:
+            self.kit_id = resp["id"]
+        return resp
 
     def get_kit(self, serial):
         r = requests.get("{}/kit".format(self.base_url), json={"serial": serial}).json()
