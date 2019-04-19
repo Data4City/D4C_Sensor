@@ -56,7 +56,7 @@ class PluggedSensor:
                 data.enqueued = True
 
         if post_data:
-            self.logger.info("Calling post event with data {}".format(str(post_data)))
+            print("Calling post event with data {}".format(str(post_data)))
             obs.trigger("post_value_server", post_data)
 
     def __str__(self) -> str:

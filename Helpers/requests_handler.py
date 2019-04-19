@@ -3,41 +3,44 @@ from rq.decorators import job
 from Helpers import rq_worker as rh
 import requests
 from observable import Observable
-
+import config
 obs = Observable()
 
+base_url = config.api["base_url"]
 
-class RequestHandler:
-    def __init__(self, config):
-        self.base_url = config["base_url"]
-        self.kit_id = None
+kit_id = None
 
-    def post_kit(self, serial):
-        r = requests.post("{}/kit".format(self.base_url), json={"serial": serial})
-        resp = r.json()
-        if "id" in resp and not self.kit_id:
-            self.kit_id = resp["id"]
-        return resp
 
-    def get_kit(self, serial):
-        r = requests.get("{}/kit".format(self.base_url), json={"serial": serial}).json()
-        if "id" in r and not self.kit_id:
-            self.kit_id = r["id"]
-        return r
+def post_kit(serial):
+    r = requests.post("{}/kit".format(base_url), json={"serial": serial})
+    resp = r.json()
+    global kit_id
+    if "id" in resp and not kit_id:
+        kit_id = resp["id"]
+    return resp
 
-    @job('post', connection=rh.redis_server, timeout=5)
-    def post_value(self, data: dict):
-        route = data.pop("type")
-        requests.post("{}/{}".format(self.base_url, route), json=data)
 
-    @obs.on("post_value_to_server")
-    def handle_post_value(self, data):
-        self.post_value.delay(data)
+def get_kit(serial):
+    r = requests.get("{}/kit".format(base_url), json={"serial": serial}).json()
+    global kit_id
 
-    def post_sensor(self, sensor_info):
-        post_body = {"kit_id": self.kit_id, "name": sensor_info["name"], "model": sensor_info["model"]}
-        return requests.post("{}/sensor".format(self.base_url), json=post_body).json()
+    if "id" in r and not kit_id:
+        kit_id = r["id"]
+    return r
 
-    def post_measurement(self, sensor_id, measurement_info):
-        post_body = {"sensor_id": sensor_id, 'symbol': measurement_info['symbol'], 'name': measurement_info['name']}
-        return requests.post("{}/measurement".format(self.base_url), json=post_body).json()
+
+@job('post', connection=rh.redis_server, timeout=5)
+def post_value(data: dict):
+    print("Posting?")
+    route = data.pop("type")
+    requests.post("{}/{}".format(base_url, route), json=data)
+
+
+def post_sensor(sensor_info):
+    post_body = {"kit_id": kit_id, "name": sensor_info["name"], "model": sensor_info["model"]}
+    return requests.post("{}/sensor".format(base_url), json=post_body).json()
+
+
+def post_measurement(sensor_id, measurement_info):
+    post_body = {"sensor_id": sensor_id, 'symbol': measurement_info['symbol'], 'name': measurement_info['name']}
+    return requests.post("{}/measurement".format(base_url), json=post_body).json()
