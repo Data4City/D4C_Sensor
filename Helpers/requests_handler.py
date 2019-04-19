@@ -26,12 +26,9 @@ class RequestHandler:
         return r
 
     @job('post', connection=rh.redis_server, timeout=5)
-    def post_value(self, data: dict, socket_emit: bool = False):
+    def post_value(self, data: dict):
         route = data.pop("type")
         requests.post("{}/{}".format(self.base_url, route), json=data)
-
-        # if socket_emit:
-        #    fh.publish_message("update", data)
 
     @obs.on("post_value_to_server")
     def handle_post_value(self, data):

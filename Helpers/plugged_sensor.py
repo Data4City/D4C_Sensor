@@ -34,7 +34,6 @@ class PluggedSensor:
         return data
 
     def update_sensors(self) -> bool:
-        self.logger.info("Trying to update sensor")
         """Tries to update the sensors and if it's successful it returns a boolean if any sensor gets updated"""
         result = False
         for curr_sensor in self.sensor_data:
@@ -50,13 +49,15 @@ class PluggedSensor:
         return result
 
     def post_to_api(self):
-        self.logger.info("Posting shit ")
         post_data = []
         for i, data in enumerate(self.sensor_data):
             if not data.enqueued:
                 post_data.append(str(data))
                 data.enqueued = True
-        obs.trigger("post_value_server", post_data)
+
+        if post_data:
+            self.logger.info("Calling post event with data {}".format(str(post_data)))
+            obs.trigger("post_value_server", post_data)
 
     def __str__(self) -> str:
         return "{} {} {} \n{} ".format(self.name, self.type, self.model,

@@ -78,10 +78,8 @@ class Raspy:
     @coroutine
     def sense(self):
         while True:
-            logging.info("WAT")
             for sensor in self.current_plugged_sensors:
                 if sensor.update_sensors():
-                    self.logger.info("posting to api")
                     sensor.post_to_api()
             yield from asyncio.sleep(10)
 

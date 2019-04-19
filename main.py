@@ -36,14 +36,13 @@ if __name__ == "__main__":
                         help="Choose json file with the description of the available sensors",
                         default="config.yaml")
     parser.add_argument("--flask", metavar='-f', nargs='?', type=str2bool, help="Run flask in background?",
-                        default=True)
-    parser.add_argument("--worker", metavar='-w', nargs='?', type=str2bool, help="Run the queue worker?", default=True)
+                        default=False)
+    parser.add_argument("--worker", metavar='-w', nargs='?', type=str2bool, help="Run the queue worker?", default=False)
     args = parser.parse_args()
 
     try:
         with open(args.sensors, 'r') as f:
             try:
-
                 config = yaml.safe_load(f)
                 rasp = Raspy(get_serial(), config)
                 rasp.start_threads()
