@@ -9,6 +9,7 @@ obs = Observable()
 
 class RequestHandler:
     def __init__(self, config):
+        print(config)
         self.base_url = config["base_url"]
         self.kit_id = None
 

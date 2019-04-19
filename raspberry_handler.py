@@ -31,6 +31,7 @@ class Raspy:
             self.logger.error("Could not initialize config. Error {}".format(e))
 
     def compare_sensors_with_api(self, sensor_list):
+        print(sensor_list)
         kit = self.requests_handler.get_kit(self.serial_num)
         if 'error' in kit:
             kit = self.requests_handler.post_kit(self.serial_num)
