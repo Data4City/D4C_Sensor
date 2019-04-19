@@ -27,12 +27,9 @@ class PluggedSensor:
         data = []
         # TODO check dictionary
         sensor_data = sensor_info.get("measurements", [])
-        sensor_api = sensor_info.get("api", [])
-        measurements = sensor_api.get("measurements", [])
         for unit_sensor in sensor_data:
-            curr_lambda = getattr(self.__sensor__, unit_sensor["function"])
-            measurement_info = find_occurence_in_list(measurements, lambda x: x.get("name", None) == unit_sensor["name"])
-            sensor = SensorMeasurement(unit_sensor,curr_lambda, measurement_info["api_id"])
+            curr_lambda = lambda: getattr(self.__sensor__, unit_sensor["function"])
+            sensor = SensorMeasurement(unit_sensor,curr_lambda, unit_sensor["api_id"])
             data.append(sensor)
         return data
 
