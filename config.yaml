@@ -1,5 +1,5 @@
 api:
-  base_url: http://localhost:80c
+  base_url: http://localhost:80
 sensors:
   - name: High Dynamic Range Digital Light
     model: TSL2591

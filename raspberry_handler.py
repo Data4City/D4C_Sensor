@@ -20,15 +20,15 @@ class Raspy:
             self.init_config(config)
 
     def init_config(self, config):
-        try:
+        # try:
             import board
             import busio
 
             self.requests_handler = RequestHandler(config["api"])
             self.i2c = busio.I2C(board.SCL, board.SDA)
             self.initialize_sensors(self.compare_sensors_with_api(config["sensors"]))
-        except Exception as e:
-            self.logger.error("Could not initialize config. Error {}".format(e))
+        # except Exception as e:
+        #     self.logger.error("Could not initialize config. Error {}".format(e))
 
     def compare_sensors_with_api(self, sensor_list):
         print(sensor_list)
