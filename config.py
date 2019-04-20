@@ -1,9 +1,10 @@
 import sys
 
-import yaml
-#TODO WOrk on global config
 
-def create_config(f):
-    config = yaml.safe_load(f)
+def create_config(config):
+    config_module = sys.modules[__name__]
+
     for k, v in config.items():
-        setattr(sys.modules["config"], k, v)
+        setattr(config_module, k, v)
+
+    delattr(config_module, "sys")

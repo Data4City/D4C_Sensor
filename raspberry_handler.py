@@ -6,10 +6,11 @@ from threading import Thread
 from Helpers.general_helpers import find_occurence_in_list
 from Helpers.plugged_sensor import PluggedSensor
 import Helpers.requests_handler as rh
+import config
 
 
 class Raspy(Thread):
-    def __init__(self, serial, config=None):
+    def __init__(self, serial):
         Thread.__init__(self, group=None, target=None, name="Raspberry")
         self.logger = logging.getLogger(__name__)
         self.current_plugged_sensors = []
@@ -18,7 +19,7 @@ class Raspy(Thread):
         self.i2c = None
 
         if config:
-            self.init_config(config)
+            self.init_config()
 
     def run(self):
         loop = asyncio.new_event_loop()
@@ -27,12 +28,12 @@ class Raspy(Thread):
             self.logger.info("Starting thread".format(value.name))
             value.start()
 
-    def init_config(self, config):
+    def init_config(self):
         import board
         import busio
 
         self.i2c = busio.I2C(board.SCL, board.SDA)
-        self.initialize_sensors(self.compare_sensors_with_api(config["sensors"]))
+        self.initialize_sensors(self.compare_sensors_with_api(config.sensors))
 
     def compare_sensors_with_api(self, sensor_list):
         kit = rh.get_kit(self.serial_num)

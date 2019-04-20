@@ -6,13 +6,12 @@ from observable import Observable
 import config
 obs = Observable()
 
-base_url = config.api["base_url"]
 
 kit_id = None
 
 
 def post_kit(serial):
-    r = requests.post("{}/kit".format(base_url), json={"serial": serial})
+    r = requests.post("{}/kit".format(config.api["base_url"]), json={"serial": serial})
     resp = r.json()
     global kit_id
     if "id" in resp and not kit_id:
@@ -21,7 +20,7 @@ def post_kit(serial):
 
 
 def get_kit(serial):
-    r = requests.get("{}/kit".format(base_url), json={"serial": serial}).json()
+    r = requests.get("{}/kit".format(config.api["base_url"]), json={"serial": serial}).json()
     global kit_id
 
     if "id" in r and not kit_id:
@@ -33,14 +32,14 @@ def get_kit(serial):
 def post_value(data: dict):
     print("Posting?")
     route = data.pop("type")
-    requests.post("{}/{}".format(base_url, route), json=data)
+    requests.post("{}/{}".format(config.api["base_url"], route), json=data)
 
 
 def post_sensor(sensor_info):
     post_body = {"kit_id": kit_id, "name": sensor_info["name"], "model": sensor_info["model"]}
-    return requests.post("{}/sensor".format(base_url), json=post_body).json()
+    return requests.post("{}/sensor".format(config.api["base_url"]), json=post_body).json()
 
 
 def post_measurement(sensor_id, measurement_info):
     post_body = {"sensor_id": sensor_id, 'symbol': measurement_info['symbol'], 'name': measurement_info['name']}
-    return requests.post("{}/measurement".format(base_url), json=post_body).json()
+    return requests.post("{}/measurement".format(config.api["base_url"]), json=post_body).json()
