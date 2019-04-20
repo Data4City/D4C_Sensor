@@ -1,24 +1,7 @@
 import argparse, yaml, logging
 from threading import Thread
-
-from Helpers.general_helpers import str2bool
-
-
-
-def get_serial(serial="0000000000000000"):
-    # Extract serial from cpuinfo file
-    if serial == "0000000000000000" or serial == "ERROR000000000":
-        try:
-            with open('/proc/cpuinfo', 'r') as f:
-                for line in f:
-                    if line[0:6] == 'Serial':
-                        serial = line[10:26]
-        except:
-            logger = logging.getLogger(__name__)
-            logger.error("Serial number not found")
-            serial = "ERROR000000000"
-    return serial
-
+from Helpers.general_helpers import str2bool, get_serial
+import config
 
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
@@ -43,12 +26,12 @@ if __name__ == "__main__":
     try:
         with open(args.sensors, 'r') as f:
             try:
-                import asyncio
-
                 from raspberry_handler import Raspy
 
-                rasp = Raspy(get_serial(), config)
+                config.create_config(config=yaml.safe_load(f))
+                rasp = Raspy(get_serial())
                 rasp.start()
+
                 if args.flask:
                     from Helpers import flask_helper
 
@@ -58,7 +41,7 @@ if __name__ == "__main__":
                 if args.worker:
                     from Helpers import rq_worker
 
-                    rq_worker.process_workers(config["rq_worker"]["queues"])
+                    rq_worker.process_workers(config.rq_worker["queues"])
             except yaml.YAMLError as exc:
                 logger.error(exc)
 
