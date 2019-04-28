@@ -9,5 +9,3 @@ numpy
 redis >= 3.0.0
 rq
 rq-scheduler
-flask
-flask-socketio

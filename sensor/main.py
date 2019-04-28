@@ -1,5 +1,5 @@
 import argparse, yaml, logging
-from sensor.Helpers import str2bool, get_serial
+from .Helpers.general_helpers import get_serial, str2bool
 from sensor import config
 
 if __name__ == "__main__":
