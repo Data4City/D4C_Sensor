@@ -22,8 +22,7 @@ services:
   flask:
     restart: always
     build:
-      context: .
-      dockerfile: sensor/Dockerfile
+      context: ./dashboard
     expose:
       - "8000"
 volumes:
