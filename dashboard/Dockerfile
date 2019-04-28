@@ -5,7 +5,7 @@ ENTRYPOINT []
 
 
 RUN apt-get update -y
-RUN apt-get install -y python3 python-pip-whl python3-pip python3-setuptools curl python3.5-dev
+RUN apt-get install -y python3 python-pip-whl python3-pip python3-setuptools python3.5-dev
 RUN rm -rf /var/lib/apt/lists/*
 
 
