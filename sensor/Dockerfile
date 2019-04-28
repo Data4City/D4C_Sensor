@@ -10,7 +10,7 @@ RUN apt-get -y install redis-server i2c-tools libatlas-base-dev libasound-dev li
 RUN rm -rf /var/lib/apt/lists/*
 
 
-COPY requirements.txt /data/
+COPY app/requirements.txt /data/
 RUN pip3 install wheel
 RUN pip3 install -r /data/requirements.txt
 COPY . /data/
