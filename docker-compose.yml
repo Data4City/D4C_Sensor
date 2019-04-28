@@ -18,7 +18,7 @@ services:
     build:
       context: ./sensor
       args:
-        - param: "--worker"
+        param: "--worker"
   flask:
     restart: always
     build:
