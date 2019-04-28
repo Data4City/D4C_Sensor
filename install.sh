@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 if [ -x "$(command -v docker)" ]; then
     echo "Docker is already installed"
     # command
@@ -10,4 +11,4 @@ fi
 sudo systemctl enable docker
 sudo systemctl start docker
 
-docker build -t sensorbox .
+docker-compose up --build
