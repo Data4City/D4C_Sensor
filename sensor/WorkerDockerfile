@@ -6,7 +6,6 @@ ENTRYPOINT []
 
 RUN apt-get update -y
 RUN apt-get install -y python3 python-pip-whl python3-pip python3-setuptools curl python3.5-dev
-RUN apt-get -y install i2c-tools libatlas-base-dev libasound-dev libportaudio-dev
 RUN rm -rf /var/lib/apt/lists/*
 
 
@@ -15,5 +14,4 @@ WORKDIR /app
 RUN pip3 install wheel
 RUN pip3 install -r /app/requirements.txt
 
-ARG param
-CMD ["python3","-u", "/data/main.py", "$param"]
+CMD ["python3","-u", "/data/main.py", "--worker"]

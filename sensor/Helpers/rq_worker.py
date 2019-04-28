@@ -15,3 +15,8 @@ def process_workers(queues):
             w.work()
     except Exception as e:
         logger.error(str(e))
+
+
+
+if __name__ == "__main__":
+    process_workers()

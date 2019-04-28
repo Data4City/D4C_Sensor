@@ -17,8 +17,7 @@ services:
     restart: always
     build:
       context: ./sensor
-      args:
-        param: "--worker"
+      dockerfile: WorkerDockerfile
   flask:
     restart: always
     build:

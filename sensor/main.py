@@ -2,6 +2,8 @@ import argparse, yaml, logging
 from .Helpers.general_helpers import get_serial, str2bool
 from sensor import config
 
+
+#TODO separate logic from worker into separate file and service
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
