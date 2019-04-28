@@ -10,10 +10,10 @@ RUN apt-get -y install i2c-tools libatlas-base-dev libasound-dev libportaudio-de
 RUN rm -rf /var/lib/apt/lists/*
 
 
-COPY sensor /data/
+COPY ./app /app
+WORKDIR /app
 RUN pip3 install wheel
-RUN pip3 install -r /data/requirements.txt
-COPY .. /data/
+RUN pip3 install -r /app/requirements.txt
 
 ARG param
 CMD ["python3","-u", "/data/main.py", "$param"]
