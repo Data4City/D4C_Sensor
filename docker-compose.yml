@@ -1,4 +1,4 @@
-version: "3"
+version: "2"
 services:
   db:
     image: "redis"
@@ -17,7 +17,8 @@ services:
     restart: always
     build:
       context: ./sensor
-      args: --worker
+      args:
+        - param: "--worker"
   flask:
     restart: always
     build:
