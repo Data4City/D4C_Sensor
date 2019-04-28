@@ -1,0 +1,29 @@
+version: "3"
+services:
+  db:
+    image: "redis"
+    container_name: "redis"
+    ports:
+      - "54320:5432"
+    volumes:
+      - my_dbdata:/var/lib/postgresql/data
+  sensors:
+    container_name: "Raspy Sensor"
+    restart: always
+    build:
+      context: ./sensor
+  job_worker:
+    container_name: "Job Worker"
+    restart: always
+    build:
+      context: ./sensor
+      args: --worker
+  flask:
+    restart: always
+    build:
+      context: .
+      dockerfile: sensor/Dockerfile
+    expose:
+      - "8000"
+volumes:
+  my_dbdata:
