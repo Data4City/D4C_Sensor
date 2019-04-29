@@ -2,7 +2,7 @@ from rq.decorators import job
 
 import rq_worker as rh
 import requests
-from sensor import config
+import config
 
 kit_id = None
 

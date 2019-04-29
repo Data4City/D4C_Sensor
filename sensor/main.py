@@ -1,8 +1,10 @@
-import argparse, yaml, logging
-from .Helpers.general_helpers import get_serial, str2bool
-from sensor import config
+import argparse
+import logging
+import yaml
 
-# TODO separate logic from worker into separate file and service
+import config
+from Helpers.general_helpers import get_serial
+
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
@@ -23,7 +25,7 @@ if __name__ == "__main__":
     try:
         with open(args.sensors, 'r') as f:
             try:
-                from sensor.raspberry_handler import Raspy
+                from raspberry_handler import Raspy
 
                 config.create_config(config=yaml.safe_load(f))
                 rasp = Raspy(get_serial())

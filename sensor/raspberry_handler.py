@@ -3,10 +3,10 @@ import logging
 from asyncio import coroutine
 from threading import Thread
 
-from .Helpers import general_helpers as gh
-from .Helpers.plugged_sensor import PluggedSensor
-import sensor.Helpers.requests_handler as rh
-from sensor import config
+from Helpers import general_helpers as gh
+from Helpers.plugged_sensor import PluggedSensor
+import Helpers.requests_handler as rh
+import config
 
 
 class Raspy():
