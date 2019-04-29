@@ -2,6 +2,8 @@ from rq import Connection, Worker
 import logging
 from redis import Redis
 from rq import Queue
+import sys
+
 
 redis_server = Redis()
 q = Queue(connection=redis_server)
@@ -17,6 +19,5 @@ def process_workers(queues):
         logger.error(str(e))
 
 
-
 if __name__ == "__main__":
-    process_workers()
+    process_workers(sys.argv[1:])

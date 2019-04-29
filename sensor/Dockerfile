@@ -15,5 +15,4 @@ WORKDIR /app
 RUN pip3 install wheel
 RUN pip3 install -r /app/requirements.txt
 
-ARG param
-CMD ["python3","-u", "/data/main.py", "$param"]
+CMD ["python3","-u", "/app/main.py"]

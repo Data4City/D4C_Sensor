@@ -14,4 +14,5 @@ WORKDIR /app
 RUN pip3 install wheel
 RUN pip3 install -r /app/requirements.txt
 
-CMD ["python3","-u", "/data/main.py", "--worker"]
+ARG jobqueue
+CMD ["python3","-u", "/app/rq_worker.py", "$jobqueue"]

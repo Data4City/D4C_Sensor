@@ -1,6 +1,6 @@
 from rq.decorators import job
 
-from sensor.Helpers import rq_worker as rh
+import rq_worker as rh
 import requests
 from sensor import config
 
