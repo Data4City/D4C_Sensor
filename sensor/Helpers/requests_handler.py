@@ -1,42 +1,38 @@
+from datetime import datetime
+
 from rq.decorators import job
 
 import rq_worker as rh
 import requests
 import config
 
-kit_id = None
-
 
 def post_kit(serial):
-    r = requests.post("{}/kit".format(config.api["base_url"]), json={"serial": serial})
-    resp = r.json()
-    global kit_id
-    if "id" in resp and not kit_id:
-        kit_id = resp["id"]
-    return resp
+    r = requests.post("{base_url}/kit".format(base_url=config.api["base_url"]), json={"serial": serial})
+    return r.json()
 
 
-def get_kit(serial):
-    r = requests.get("{}/kit".format(config.api["base_url"]), json={"serial": serial}).json()
-    global kit_id
-
-    if "id" in r and not kit_id:
-        kit_id = r["id"]
-    return r
+def get_kit(kit_id):
+    r = requests.get("{base_url}/{id}/kit".format(base_url=config.api["base_url"], id=kit_id))
+    return r.json()
 
 
 @job('post', connection=rh.redis_server, timeout=5)
-def post_value(data: dict):
-    print("Posting?")
-    route = data.pop("type")
-    requests.post("{}/{}/{}".format(config.api["base_url"], kit_id, route), json=data)
+def post_value(base_url, api_kit_id, measurement_id, last_value, timestamp):
+    requests.post("{base_url}/{kit_id}/{measurement_id}/values".format(base_url=base_url, kit_id=api_kit_id,
+                                                                       measurement_id=measurement_id),
+                  json={
+                      "data": last_value,
+                      "timestamp": datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S.%f')
+                  })
 
 
-def post_sensor(sensor_info):
-    post_body = {"kit_id": kit_id, "name": sensor_info["name"], "model": sensor_info["model"]}
+def post_sensor(kit_id, name, model):
+    post_body = {"kit_id": kit_id, "name": name, "model": model}
     return requests.post("{}/{}/sensor".format(config.api["base_url"], kit_id), json=post_body).json()
 
 
-def post_measurement(sensor_id, measurement_info):
-    post_body = {"sensor_id": sensor_id, 'symbol': measurement_info['symbol'], 'name': measurement_info['name']}
-    return requests.post("{}/{}/measurement".format(config.api["base_url"], kit_id), json=post_body).json()
+def post_measurement(kit_id, sensor_id, symbol, name):
+    post_body = {"sensor_id": sensor_id, 'symbol': symbol, 'name': name}
+    r = requests.post("{}/{}/measurement".format(config.api["base_url"], kit_id), json=post_body).json()
+    return r.json()

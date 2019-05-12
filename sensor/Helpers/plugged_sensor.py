@@ -29,7 +29,7 @@ class PluggedSensor:
         return data
 
     def update_sensors(self) -> bool:
-        """Tries to update the sensors and if it's successful it returns a boolean if any sensor gets updated"""
+        """Tries to update the sensors and if it's successful it returns a boolean if any measurement gets updated"""
         result = False
         for curr_sensor in self.sensor_data:
             if not curr_sensor.check_only_once:
@@ -43,27 +43,23 @@ class PluggedSensor:
 
         return result
 
-    def post_to_api(self):
+    def pre_process_api_post(self):
         post_data = []
         for i, data in enumerate(self.sensor_data):
             if not data.enqueued:
-                post_data.append(str(data))
+                post_data.append(data.__post_data__)
                 data.enqueued = True
 
-        if post_data:
-            print("Calling post event with data {}".format(str(post_data)))
-            rh.post_value.delay(post_data)
+        return post_data
 
     def __str__(self) -> str:
         return "{} {} {} \n{} ".format(self.name, self.type, self.model,
                                        ' '.join(str(sensor) for sensor in self.sensor_data))
 
-    def __post_data__(self, sensor_idx="None") -> dict:
-        if type(sensor_idx) == str:
-            return {"name": self.name, "model": self.model, "type": "i2c"}
-        else:
-            return {"name": self.name, "model": self.model, "type": "i2c",
-                    "values": self.sensor_data[int(sensor_idx)].__post_data__()}
+    @property
+    def __post_data__(self, sensor_idx:int) -> dict:
+
+        return {"name": self.name, "model": self.model, "type": "i2c","values": self.sensor_data[int(sensor_idx)].__post_data__}
 
 
 class SensorMeasurement:
@@ -88,6 +84,7 @@ class SensorMeasurement:
     def __str__(self):
         return "{} {} last updated at: {}\n".format(self.last_value, self.symbol, self.timestamp)
 
+    @property
     def __post_data__(self):
         return {"timestamp": self.timestamp.strftime('%Y-%m-%d %H:%M:%S'), "value": self.last_value,
                 "measurement_id": self.measurement_id}
