@@ -56,9 +56,7 @@ class PluggedSensor:
         return "{} {} {} \n{} ".format(self.name, self.type, self.model,
                                        ' '.join(str(sensor) for sensor in self.sensor_data))
 
-    @property
     def __post_data__(self, sensor_idx:int) -> dict:
-
         return {"name": self.name, "model": self.model, "type": "i2c","values": self.sensor_data[int(sensor_idx)].__post_data__}
 
 

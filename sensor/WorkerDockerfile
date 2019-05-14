@@ -8,11 +8,13 @@ RUN apt-get update -y
 RUN apt-get install -y python3 python-pip-whl python3-pip python3-setuptools curl python3.5-dev
 RUN rm -rf /var/lib/apt/lists/*
 
+RUN apt-get -y install libc-dev
+RUN apt-get -y install build-essential
 
 COPY . /app
 WORKDIR /app
 RUN pip3 install wheel
-RUN pip3 install -r /app/requirements.txt
+RUN pip3 install -r /app/worker_requirements.txt
 
 ARG jobqueue
 CMD ["python3","-u", "rq_worker.py", "$jobqueue"]
