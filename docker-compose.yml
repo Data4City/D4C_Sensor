@@ -2,7 +2,6 @@ version: "2"
 services:
   db:
     image: "redis"
-    container_name: "redis"
     ports:
       - "54320:5432"
     volumes:
@@ -10,7 +9,6 @@ services:
   sensors:
     depends_on:
       - db
-    container_name: "Raspy Sensor"
     restart: always
     build:
       context: ./sensor
@@ -21,7 +19,6 @@ services:
     depends_on:
       - sensors
       - db
-    container_name: "Job Worker"
     restart: always
     build:
       context: ./sensor
