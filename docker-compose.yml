@@ -8,6 +8,8 @@ services:
     volumes:
       - my_dbdata:/var/lib/postgresql/data
   sensors:
+    depends_on:
+      - db
     container_name: "Raspy Sensor"
     restart: always
     build:
@@ -16,6 +18,8 @@ services:
       - /proc/cpuinfo:/proc/cpuinfo
 
   job_worker:
+    depends_on:
+      - sensors
     container_name: "Job Worker"
     restart: always
     build:
@@ -23,11 +27,11 @@ services:
       dockerfile: WorkerDockerfile
       args:
         jobqueue: "post"
-  flask:
-    restart: always
-    build:
-      context: ./dashboard
-    expose:
-      - "8000"
+#  flask:
+#    restart: always
+#    build:
+#      context: ./dashboard
+#    expose:
+#      - "8000"
 volumes:
   my_dbdata:

@@ -5,8 +5,9 @@ adafruit-circuitpython-tsl2591
 adafruit-circuitpython-mpl3115A2
 redis >= 3.0.0
 rq
-rq-scheduler
+requests
 
 # Ignored for the build to ignore the microphone part at the moment
+#rq-scheduler
 # sounddevice
 # numpy==1.14.3

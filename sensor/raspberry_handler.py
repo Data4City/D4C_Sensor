@@ -60,7 +60,7 @@ class Raspy():
             sensor_from_api = gh.find_occurence_in_list(api_sensors_used,
                                                         lambda x: x.get("model", None) == sensor["model"])
             if not sensor_from_api:
-                api_sensor_create_response = rh.post_sensor(name= sensor["name"], model= sensor["model"])
+                api_sensor_create_response = rh.post_sensor(name=sensor["name"], model=sensor["model"])
                 sensor["api_id"] = api_sensor_create_response["id"]
             else:
                 sensor["api_id"] = sensor_from_api["id"]
@@ -73,8 +73,8 @@ class Raspy():
                                                              lambda x: x.get("name", None) == measurement["name"])
 
                 if not resp_measurement:
-                    #api_response = rh.post_measurement(sensor["api_id"], measurement)
-                    api_response = rh.post_measurement(sensor_id=sensor["api_id"], symbol=measurement['symbol'], name= measurement['name'])
+                    api_response = rh.post_measurement(sensor_id=sensor["api_id"], symbol=measurement['symbol'],
+                                                       name=measurement['name'])
                     measurement["api_id"] = api_response["id"]
                 else:
                     measurement["api_id"] = resp_measurement["id"]
@@ -93,7 +93,8 @@ class Raspy():
                     if to_post:
                         for element in to_post:
                             print("Calling post event with data {}".format(str(element)))
-                            rh.post_value.delay(config.api["base_url"], self.kit_id, element["measurement_id"], element["last_value"], element["timestamp"])
+                            rh.post_value.delay(config.api["base_url"], self.kit_id, element["measurement_id"],
+                                                element["last_value"], element["timestamp"])
             yield from asyncio.sleep(10)
 
     def sensor_factory(self, sensor_info):

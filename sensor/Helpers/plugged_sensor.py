@@ -1,6 +1,6 @@
-import importlib, logging
+import importlib
+import logging
 from datetime import datetime
-from Helpers import requests_handler as rh
 
 
 class PluggedSensor:
