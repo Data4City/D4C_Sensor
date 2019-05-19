@@ -12,6 +12,9 @@ services:
     restart: always
     build:
       context: ./sensor
+    volumes:
+      - /proc/cpuinfo:/proc/cpuinfo
+
   job_worker:
     container_name: "Job Worker"
     restart: always

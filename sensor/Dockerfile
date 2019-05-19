@@ -12,7 +12,6 @@ RUN apt-get -y install libc-dev
 
 RUN rm -rf /var/lib/apt/lists/*
 
-COPY /proc/cpuinfo /proc/cpuinfo
 COPY . /app
 WORKDIR /app
 RUN pip3 install wheel
