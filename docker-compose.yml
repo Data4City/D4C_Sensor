@@ -17,9 +17,10 @@ services:
     volumes:
       - /proc/cpuinfo:/proc/cpuinfo
 
-  job_worker:
+  worker:
     depends_on:
       - sensors
+      - db
     container_name: "Job Worker"
     restart: always
     build:
