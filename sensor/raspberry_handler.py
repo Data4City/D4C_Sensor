@@ -3,7 +3,7 @@ import logging
 from asyncio import coroutine
 from threading import Thread
 
-from Helpers import general_helpers as gh
+from Helpers.general_helpers import find_occurence_in_list
 from Helpers.plugged_sensor import PluggedSensor
 import Helpers.requests_handler as rh
 import config
@@ -58,11 +58,11 @@ class Raspy():
 
         api_sensors_used = api_kit.get("sensors_used", [])
         for sensor in sensor_list:
-            sensor_from_api = gh.find_occurence_in_list(api_sensors_used,
+            sensor_from_api = find_occurence_in_list(api_sensors_used,
                                                         lambda x: x.get("model", None) == sensor["model"])
             if not sensor_from_api:
-                api_sensor_create_response = rh.post_sensor(name=sensor["name"], model=sensor["model"])
-                sensor["api_id"] = api_sensor_create_response["id"]
+                post_sensor_resp = rh.post_sensor(name=sensor["name"], model=sensor["model"])
+                sensor["api_id"] = post_sensor_resp["id"]
             else:
                 sensor["api_id"] = sensor_from_api["id"]
 
@@ -70,13 +70,13 @@ class Raspy():
             measurements_config = sensor.get("measurements", [])
 
             for measurement in measurements_config:
-                resp_measurement = gh.find_occurence_in_list(measurements_api,
+                resp_measurement = find_occurence_in_list(measurements_api,
                                                              lambda x: x.get("name", None) == measurement["name"])
 
                 if not resp_measurement:
-                    api_response = rh.post_measurement(sensor_id=sensor["api_id"], symbol=measurement['symbol'],
+                    m_post_response = rh.post_measurement(sensor_id=sensor["api_id"], symbol=measurement['symbol'],
                                                        name=measurement['name'])
-                    measurement["api_id"] = api_response["id"]
+                    measurement["api_id"] = m_post_response["id"]
                 else:
                     measurement["api_id"] = resp_measurement["id"]
 
