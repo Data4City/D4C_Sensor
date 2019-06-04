@@ -52,10 +52,11 @@ class Raspy():
         asyncio.set_event_loop(loop)
         loop.run_until_complete(self.sense())
 
+    # Posts to api to 'login' and get the actual ids used in the backend.
     def compare_sensors_with_api(self, sensor_list):
-        kit = rh.get_kit(self.kit_id)
+        api_kit = rh.get_kit(self.kit_id)
 
-        api_sensors_used = kit.get("sensors_used", [])
+        api_sensors_used = api_kit.get("sensors_used", [])
         for sensor in sensor_list:
             sensor_from_api = gh.find_occurence_in_list(api_sensors_used,
                                                         lambda x: x.get("model", None) == sensor["model"])
